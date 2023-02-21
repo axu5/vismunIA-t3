@@ -11,6 +11,7 @@ import GoogleProvider, { type GoogleProfile } from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "../env.mjs";
 import { prisma } from "./db";
+import { type UserRole } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types.
@@ -23,15 +24,15 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      role: UserRole;
       // ...other properties
-      // role: UserRole;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    // ...other properties
+    role: UserRole;
+  }
 }
 
 /**
@@ -45,7 +46,8 @@ export const authOptions: NextAuthOptions = {
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
-        // session.user.role = user.role; <-- put other properties on the session here
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        session.user.role = user.role;
       }
       return session;
     },
@@ -59,6 +61,8 @@ export const authOptions: NextAuthOptions = {
     }) {
       // Only allow google as a log in method
       if (!account || !profile) return false;
+
+      // Check account provider to allow type cast
       if (account.provider !== "google") return false;
 
       // Only allow students that go to this school to log in
@@ -68,10 +72,6 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(prisma),
   providers: [
-    // DiscordProvider({
-    //   clientId: env.DISCORD_CLIENT_ID,
-    //   clientSecret: env.DISCORD_CLIENT_SECRET,
-    // }),
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,

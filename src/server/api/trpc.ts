@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 /**
  * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
  * 1. You want to modify request context (see Part 1).
@@ -115,6 +116,26 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 });
 
 /**
+ * Authenticate based on user role
+ */
+const enforceRole = (roles: UserRole[]) =>
+  t.middleware(({ ctx, next }) => {
+    if (
+      !ctx.session ||
+      !ctx.session.user ||
+      !roles.some((role) => role === ctx.session?.user.role)
+    ) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+    return next({
+      ctx: {
+        // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
+  });
+
+/**
  * Protected (authenticated) procedure
  *
  * If you want a query or mutation to ONLY be accessible to logged in users, use
@@ -124,3 +145,9 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+export const protectedProcedureSecretaryGeneral = t.procedure.use(
+  enforceRole(["SECRETARY_GENERAL", "TEACHER"])
+);
+export const protectedProcedureTeacher = t.procedure.use(
+  enforceRole(["TEACHER"])
+);

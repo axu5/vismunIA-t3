@@ -14,16 +14,72 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    text      String
-    authorId    String
-    author      User     @relation(fields: [authorId], references: [id])
+// Needed to have a balanced debate
+enum Position {
+    FOR
+    AGAINST
+    NEUTRAL
 }
 
-// Necessary for Next auth
+
+model Country {
+    id            String       @id @default(cuid())
+    name          String
+    // URI array
+    documents     String[]
+    position      Position
+    topic         Topic        @relation(fields: [id], references: [id])
+    students      User[]
+}
+
+model MUNSession {
+    id            String       @id  @default(cuid())
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    location      String
+    date          DateTime
+    attendance    User[]
+    topic         Topic        @relation(fields: [id], references: [id])
+}
+
+model Topic {
+    id              String       @id  @default(cuid())
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    title           String       @unique
+    description     String
+    // URI Array
+    sharedDocuments String[]
+    countries       Country[]
+    sessions        MUNSession[]
+}
+
+enum UserRole {
+    STUDENT
+    SECRETARY_GENERAL
+    TEACHER
+}
+
+model User {
+    id            String        @id @default(cuid())
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+    name          String
+    email         String        @unique
+    emailVerified DateTime?
+    image         String?
+    role          UserRole      @default(STUDENT)
+    attendance    MUNSession[]
+    
+    // Should not be used
+    countries     Country[]
+    
+    // Next Auth things
+    accounts      Account[]
+    sessions      Session[]
+}
+
+// Necessary for Next auth -------------------------------
 model Account {
     id                String   @id @default(cuid())
     userId            String  
@@ -48,17 +104,6 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
 }
 
 model VerificationToken {
