@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "./ui/Button";
+import { Button } from "@/components/ui/button";
 import TypographyH1 from "./ui/TypographyH1";
 import { useSession } from "next-auth/react";
 import TypographyP from "./ui/TypographyP";

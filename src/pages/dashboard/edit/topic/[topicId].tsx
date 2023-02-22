@@ -4,7 +4,7 @@ import { api } from "@/utils/api";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
 import TypographyH4 from "@/components/ui/TypographyH4";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { TRPCError } from "@trpc/server";
 import { useToast } from "@/hooks/ui/use-toast";

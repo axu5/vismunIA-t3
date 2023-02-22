@@ -1,5 +1,5 @@
 import UserAllowed from "@/components/UserAllowed";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import TypographyH1 from "@/components/ui/TypographyH1";
 import TypographyH4 from "@/components/ui/TypographyH4";

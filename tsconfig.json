@@ -21,6 +21,14 @@
     "incremental": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.cjs",
+    "**/*.mjs",
+    "src/components/ui/dropdown-menu.txs",
+    "src/components/ui/dropdown-menu.txs"
+  ],
   "exclude": ["node_modules", "tailwind.config.cjs"]
 }

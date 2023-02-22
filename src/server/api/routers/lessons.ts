@@ -9,7 +9,7 @@ export const lessonsRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.lesson.findMany({
       orderBy: {
-        createdAt: "desc",
+        date: "desc",
       },
     });
   }),
