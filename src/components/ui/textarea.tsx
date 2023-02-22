@@ -8,7 +8,7 @@ import { cn } from "@/utils/cn";
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,
   React.TextareaHTMLAttributes<HTMLTextAreaElement>
->(({ className, onChange }, ref) => {
+>(({ className, ...props }, ref) => {
   return (
     <textarea
       className={cn(
