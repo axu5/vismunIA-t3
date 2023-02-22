@@ -24,7 +24,7 @@ export const topicsRouter = createTRPCRouter({
       });
     }),
   getById: publicProcedure
-    .input(z.string().min(1))
+    .input(z.string().cuid())
     .query(async ({ input, ctx }) => {
       if (!input)
         return new TRPCError({

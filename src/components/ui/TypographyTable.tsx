@@ -3,15 +3,28 @@ import { type FC, type ReactNode } from "react";
 interface TypographyTableProps {
   titles: ReactNode[];
   rows: ReactNode[][];
+  exclude?: string[];
 }
 
-const TypographyTable: FC<TypographyTableProps> = ({ titles, rows }) => {
+const TypographyTable: FC<TypographyTableProps> = ({
+  titles,
+  rows,
+  exclude,
+}) => {
+  const excludeIndices = new Array((exclude || []).length);
+  for (let i = 0; i < excludeIndices.length; ++i) {
+    if (exclude?.includes(titles[i]?.valueOf() as string)) {
+      excludeIndices.push(i);
+    }
+  }
+
   return (
     <div className="my-6 w-full overflow-y-auto">
       <table className="w-full">
         <thead>
           <tr className="m-0 border-t border-slate-300 p-0 even:bg-slate-100 dark:border-slate-700 dark:even:bg-slate-800">
             {titles.map((title, i) => {
+              if (excludeIndices.includes(i)) return;
               return (
                 <th
                   key={i}
@@ -31,6 +44,7 @@ const TypographyTable: FC<TypographyTableProps> = ({ titles, rows }) => {
                 className="m-0 border-t border-slate-200 p-0 even:bg-slate-100 dark:border-slate-700 dark:even:bg-slate-800"
               >
                 {row.map((text, colIndex) => {
+                  if (excludeIndices.includes(colIndex)) return;
                   return (
                     <td
                       key={colIndex}

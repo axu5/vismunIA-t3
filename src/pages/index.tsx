@@ -7,34 +7,44 @@ import { type NextPage } from "next";
 import { api } from "@/utils/api";
 
 const Home: NextPage = () => {
-  const { data: sessions, isLoading } = api.sessions.getAll.useQuery();
-
-  // TODO: replace with an animation
-  if (isLoading) return <h1>Loading...</h1>;
+  const { data: lessons, isLoading } = api.lessons.getAll.useQuery();
+  const { data: topics, isLoading: isLoadingTopics } =
+    api.topics.getAll.useQuery();
 
   return (
     <>
       <div className="h-screen">
         <TypographyH2 title="MUN Sessions coming up" />
         <div>
-          {typeof sessions !== "undefined" &&
-            sessions.map((session, i) => {
-              return (
-                <div
-                  key={session.date.toUTCString()}
-                  className={`flex flex-col rounded-md border md:flex-row ${
-                    i % 2 === 0 ? "bg-slate-300" : "bg-slate-400"
-                  }`}
-                >
-                  <div className="min-w-sm max-w-md">
-                    <TypographyH3 title={session.topic.title} />
-                    <TypographyH4 title={session.sessionName} />
-                    <TypographyP text={session.date.toDateString()} />
-                    <TypographyP text={session.location} />
+          {isLoading ||
+          isLoadingTopics ||
+          typeof lessons === "undefined" ||
+          typeof topics === "undefined"
+            ? "Loading..."
+            : lessons.map((lesson, i) => {
+                return (
+                  <div
+                    key={i}
+                    className={`flex flex-col rounded-md border md:flex-row ${
+                      i % 2 === 0 ? "bg-slate-300" : "bg-slate-400"
+                    }`}
+                  >
+                    <div className="min-w-sm max-w-md">
+                      <TypographyH3
+                        title={
+                          (
+                            topics.find(
+                              (topic) => topic.id === lesson.topicId
+                            ) || { title: "SOMETHING WENT WRONG" }
+                          ).title
+                        }
+                      />
+                      <TypographyP text={lesson.date.toDateString()} />
+                      <TypographyP text={lesson.location} />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
         </div>
       </div>
     </>

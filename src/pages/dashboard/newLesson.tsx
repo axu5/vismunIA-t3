@@ -3,18 +3,18 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import TypographyH1 from "@/components/ui/TypographyH1";
 import TypographyH4 from "@/components/ui/TypographyH4";
+import TypographyTable from "@/components/ui/TypographyTable";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/hooks/ui/use-toast";
 import { api } from "@/utils/api";
-import type { MUNSession } from "@prisma/client";
+import type { Lesson } from "@prisma/client";
 import Link from "next/link";
 import type { NextPage } from "next/types";
 import { type FormEvent, useState } from "react";
 
 const Dashboard: NextPage = () => {
   // use state hell
-  const [sessionName, setSessionName] = useState("");
   const [location, setLocation] = useState("");
   const [day, setDay] = useState(0);
   const [month, setMonth] = useState(0);
@@ -24,23 +24,28 @@ const Dashboard: NextPage = () => {
   const [topic, setTopic] = useState("");
   const utils = api.useContext();
 
-  const allSessions = api.sessions.getAll.useQuery();
-  const allTopics = api.topics.getAll.useQuery();
-
-  const deleter = api.sessions.delete.useMutation({
-    async onSuccess() {
-      await utils.sessions.invalidate();
+  const allLessons = api.lessons.getAll.useQuery();
+  const allTopics = api.topics.getAll.useQuery(undefined, {
+    onSuccess(data) {
+      if (!data[0]) return;
+      setTopic(data[0].id);
     },
   });
-  function deleteMe(session: MUNSession) {
+
+  const deleter = api.lessons.delete.useMutation({
+    async onSuccess() {
+      await utils.lessons.invalidate();
+    },
+  });
+  function deleteMe(lesson: Lesson) {
     return () => {
-      deleter.mutate(session.id);
+      deleter.mutate(lesson.id);
     };
   }
 
-  const creator = api.sessions.create.useMutation({
+  const creator = api.lessons.create.useMutation({
     async onSuccess() {
-      await utils.sessions.invalidate();
+      await utils.lessons.invalidate();
     },
   });
   function createNewSession(e: FormEvent<HTMLFormElement>) {
@@ -58,13 +63,13 @@ const Dashboard: NextPage = () => {
       date.setMilliseconds(0);
 
       if (date.getTime() <= Date.now()) throw "Date must be in the future";
-
-      creator.mutate({
-        sessionName,
+      const obj = {
         location,
         date,
         topicId: topic,
-      });
+      };
+      console.log("OBJ", obj);
+      creator.mutate(obj);
     } catch (e) {
       toast({
         title: "Error setting date",
@@ -79,15 +84,6 @@ const Dashboard: NextPage = () => {
       <TypographyH1 title="New Session" />
       {/* TODO: COULD BE BETTER FROM UX */}
       <form onSubmit={createNewSession}>
-        <TypographyH4 title="Session Name" />
-        <Input
-          type="text"
-          onChange={(e) => {
-            setSessionName(e.target.value);
-          }}
-          placeholder="Session name"
-          required={true}
-        />
         <TypographyH4 title="Location" />
         <Input
           type="text"
@@ -184,37 +180,37 @@ const Dashboard: NextPage = () => {
           Create new session
         </Button>
       </form>
-      {allSessions.isSuccess && (
-        <ListAllSessions deleteMe={deleteMe} sessions={allSessions.data} />
+      {allLessons.isSuccess && (
+        <ListAllLessons deleteMe={deleteMe} lessons={allLessons.data} />
       )}
     </UserAllowed>
   );
 };
 
-function ListAllSessions({
-  sessions,
+function ListAllLessons({
+  lessons,
   deleteMe,
 }: {
-  sessions: MUNSession[];
-  deleteMe: (_: MUNSession) => () => void;
+  lessons: Lesson[];
+  deleteMe: (_: Lesson) => () => void;
 }) {
-  if (!sessions || sessions.length === 0) return <h1>No sessions found</h1>;
+  if (!lessons || lessons.length === 0) return <h1>No sessions found</h1>;
 
-  const titles = Object.keys(sessions[0] || {}).concat(["Edit", "Delete"]);
-  const rows = sessions.map((session) => {
-    return Object.values(session)
-      .map((s, i) => {
-        return <p key={i}>{s.toLocaleString()}</p>;
+  const titles = Object.keys(lessons[0] || {}).concat(["Edit", "Delete"]);
+  const rows = lessons.map((lesson) => {
+    return Object.values(lesson)
+      .map((lessonValue, i) => {
+        return <p key={i}>{lessonValue.toLocaleString()}</p>;
       })
       .concat([
         <Link
           key={titles.length - 2}
-          href={`/dashboard/edit/topic/${session.id}`}
+          href={`/dashboard/edit/topic/${lesson.id}`}
         >
           <Button variant={"default"}>Edit</Button>
         </Link>,
         <Button
-          onClick={deleteMe(session)}
+          onClick={deleteMe(lesson)}
           key={titles.length - 1}
           variant="destructive"
         >
@@ -223,7 +219,7 @@ function ListAllSessions({
       ]);
   });
 
-  return <></>;
+  return <TypographyTable titles={titles} rows={rows} />;
 }
 
 export default Dashboard;

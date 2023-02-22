@@ -21,37 +21,35 @@ enum Position {
     NEUTRAL
 }
 
-
 model Country {
     id            String       @id @default(cuid())
     name          String
     // URI array
     documents     String[]
     position      Position
-    topic         Topic        @relation(fields: [id], references: [id])
+    topic         Topic        @relation(fields: [topicId], references: [id])
+    topicId       String
     students      User[]
 }
 
-model MUNSession {
+model Lesson {
     id            String       @id  @default(cuid())
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
     location      String
     date          DateTime
     attendance    User[]
-    topic         Topic        @relation(fields: [id], references: [id])
+    topic         Topic        @relation(fields: [topicId], references: [id])
+    topicId       String
 }
 
 model Topic {
     id              String       @id  @default(cuid())
     createdAt       DateTime     @default(now())
-    updatedAt       DateTime     @updatedAt
     title           String       @unique
     description     String
     // URI Array
     sharedDocuments String[]
     countries       Country[]
-    sessions        MUNSession[]
+    sessions        Lesson[]
 }
 
 enum UserRole {
@@ -69,7 +67,7 @@ model User {
     emailVerified DateTime?
     image         String?
     role          UserRole      @default(STUDENT)
-    attendance    MUNSession[]
+    attendance    Lesson[]
     
     // Should not be used
     countries     Country[]

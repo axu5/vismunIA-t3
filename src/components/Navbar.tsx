@@ -104,10 +104,10 @@ function SecretaryGeneralOptions() {
         "To start a new topic click here, and fill in the form. Then create sessions with this topic to show for students.",
     },
     {
-      title: "Create a new Session",
-      href: "/dashboard/newSession",
+      title: "Create a new Lesson",
+      href: "/dashboard/newLesson",
       description:
-        "To create a session/ lesson click here, and fill in the form. This will make a timed session that will make it easy to manage files and share things with the students.",
+        "To create a lesson click here, and fill in the form. This will make a scheduled lesson that will make it easy to manage files and share things with the students.",
     },
   ];
   return (

@@ -1,20 +1,22 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedureSecretaryGeneral,
   publicProcedure,
-} from "./../trpc";
+} from "../trpc";
 
-export const sessionsRouter = createTRPCRouter({
+export const lessonsRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.mUNSession.findMany();
+    return await ctx.prisma.lesson.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
   }),
 
   create: protectedProcedureSecretaryGeneral
     .input(
       z.object({
-        sessionName: z.string().min(1),
         /*
          * Not mandatory as default behaviour
          * pulls from last session's location
@@ -34,15 +36,23 @@ export const sessionsRouter = createTRPCRouter({
       })
     )
     // TODO: functionality
-    .mutation(({ ctx, input }) => {
-      const { topicId } = input;
-      return true;
+    .mutation(async ({ ctx, input }) => {
+      //   await ctx.prisma.lesson
+      const { location, date, topicId } = input;
+      const document = await ctx.prisma.lesson.create({
+        data: {
+          location,
+          date,
+          topicId,
+        },
+      });
+      return document;
     }),
 
   delete: protectedProcedureSecretaryGeneral
     .input(z.string().min(1))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.mUNSession.delete({
+      return await ctx.prisma.lesson.delete({
         where: {
           id: input,
         },
