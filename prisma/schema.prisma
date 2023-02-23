@@ -36,7 +36,8 @@ model Lesson {
     id            String       @id  @default(cuid())
     location      String
     date          DateTime
-    dateString    String       @unique
+    // Only allow one lesson per day
+    dateStr       String       @unique
     attendance    User[]
     topic         Topic        @relation(fields: [topicId], references: [id])
     topicId       String
