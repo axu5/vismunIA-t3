@@ -6,7 +6,7 @@ import TypographyH4 from "@/components/ui/TypographyH4";
 import TypographyTable from "@/components/ui/TypographyTable";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { toast } from "@/hooks/ui/use-toast";
+import { useToast } from "@/hooks/ui/use-toast";
 import { api } from "@/utils/api";
 import type { Lesson } from "@prisma/client";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import type { NextPage } from "next/types";
 import { type FormEvent, useState } from "react";
 
 const NewLesson: NextPage = () => {
+  const { toast } = useToast();
   // use state hell
   const [location, setLocation] = useState("");
   const [day, setDay] = useState(0);
@@ -46,6 +47,13 @@ const NewLesson: NextPage = () => {
   const creator = api.lessons.create.useMutation({
     async onSuccess() {
       await utils.lessons.invalidate();
+    },
+    onError({ message }) {
+      toast({
+        title: "Failed to create lesson",
+        description: message,
+        variant: "destructive",
+      });
     },
   });
   function createNewSession(e: FormEvent<HTMLFormElement>) {

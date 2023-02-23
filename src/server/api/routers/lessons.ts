@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -6,13 +7,15 @@ import {
 } from "../trpc";
 
 export const lessonsRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.lesson.findMany({
-      orderBy: {
-        date: "desc",
-      },
-    });
-  }),
+  getAll: publicProcedure
+    .input(z.enum(["asc", "desc"]).default("desc"))
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.lesson.findMany({
+        orderBy: {
+          date: input,
+        },
+      });
+    }),
 
   create: protectedProcedureSecretaryGeneral
     .input(
@@ -32,17 +35,31 @@ export const lessonsRouter = createTRPCRouter({
          * auto generate. Needs to be validated
          * as an existing topic.
          */
-        topicId: z.string().min(1),
+        topicId: z.string().cuid(),
       })
     )
     // TODO: functionality
     .mutation(async ({ ctx, input }) => {
-      //   await ctx.prisma.lesson
+      // 2 lessons can't exist on the same date
       const { location, date, topicId } = input;
+      const dateStrIdentifier = makeDateStr(date);
+      const sameDate = await ctx.prisma.lesson.findFirst({
+        where: {
+          dateStr: dateStrIdentifier,
+        },
+      });
+      console.log(sameDate);
+      if (sameDate !== null) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: `Lesson already exists on date ${dateStrIdentifier}`,
+        });
+      }
       const document = await ctx.prisma.lesson.create({
         data: {
           location,
           date,
+          dateStr: dateStrIdentifier,
           topicId,
         },
       });
@@ -59,3 +76,7 @@ export const lessonsRouter = createTRPCRouter({
       });
     }),
 });
+
+function makeDateStr(date: Date) {
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDay()}`;
+}

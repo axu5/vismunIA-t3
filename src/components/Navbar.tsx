@@ -6,15 +6,11 @@ import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/NavigationMenu";
 import { useMemo } from "react";
 import * as React from "react";
-import { cn } from "@/utils/cn";
 
 const Navbar = () => {
   const { data: session, status } = useSession();
