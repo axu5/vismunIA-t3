@@ -7,18 +7,35 @@ import { api } from "../utils/api";
 import "../styles/globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/Toaster";
+import Head from "next/head";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
-}) => {
-  return (
-    <SessionProvider session={session}>
-      <Navbar />
-      <Component {...pageProps} />
-      <Toaster />
-    </SessionProvider>
-  );
-};
+}) => (
+  <SessionProvider session={session}>
+    <Head>
+      <title>VIS MUN</title>
+      {/*
+            TODO: Optimize SEO, however this is fine for this purpose
+            Write a unique title tag for each page; Be brief, but descriptive;
+            Avoid generic and vague titles;
+            Use sentence case or title case;
+            Create something click-worthy—not clickbait;
+            Match search intent;
+            Include your target keyword where it makes sense;
+            Keep it under 60 characters. */}
+      <meta title="Verdala International School - Model United Nations" />
+      <meta
+        name="description"
+        content="MUN for Verdala is a place to gather meeting information and previous session data, see all the lessons that the VIS MUN team have made!"
+      />
+      <meta name="robots" content="index, follow" />
+    </Head>
+    <Navbar />
+    <Component {...pageProps} />
+    <Toaster />
+  </SessionProvider>
+);
 
 export default api.withTRPC(MyApp);
