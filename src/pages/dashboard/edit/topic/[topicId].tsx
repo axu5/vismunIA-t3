@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/Input";
 import TypographyH4 from "@/components/ui/TypographyH4";
 import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
-import { TRPCError } from "@trpc/server";
 import { useToast } from "@/hooks/ui/use-toast";
 
 const TopicEditor: NextPage = () => {
@@ -18,8 +17,6 @@ const TopicEditor: NextPage = () => {
   const [description, setDescription] = useState("");
   const topic = api.topics.getById.useQuery(_topicId, {
     onSuccess(data) {
-      if (!data) return;
-      if (data instanceof TRPCError) return;
       setTitle(data.title);
       setDescription(data.description);
     },

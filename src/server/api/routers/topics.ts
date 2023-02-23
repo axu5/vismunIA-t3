@@ -27,15 +27,22 @@ export const topicsRouter = createTRPCRouter({
     .input(z.string().cuid())
     .query(async ({ input, ctx }) => {
       if (!input)
-        return new TRPCError({
+        throw new TRPCError({
           code: "BAD_REQUEST",
           message: "ID needs to be defined",
         });
-      return await ctx.prisma.topic.findFirst({
+      const topic = await ctx.prisma.topic.findFirst({
         where: {
           id: input,
         },
       });
+      if (topic === null) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Topic not found",
+        });
+      }
+      return topic;
     }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {

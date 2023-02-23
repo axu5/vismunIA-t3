@@ -36,7 +36,7 @@ model Lesson {
     id            String       @id  @default(cuid())
     location      String
     date          DateTime
-    dateStr       String       @unique
+    dateString    String       @unique
     attendance    User[]
     topic         Topic        @relation(fields: [topicId], references: [id])
     topicId       String

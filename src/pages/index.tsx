@@ -21,7 +21,7 @@ const Home: NextPage = () => {
     // get last lesson date and calculate days in between
     const { data: lessons } = lessonsQuery;
     if (lessons.length === 0) return [[]] as ReactNode[][];
-    const now = new Date();
+    const now = Date.now();
     let nextLessonIndex = 0;
     // max 4 rows
     const rows = new Array<ReactNode[]>(4).fill([]).map((_, row) => {
@@ -33,9 +33,9 @@ const Home: NextPage = () => {
 
         const nextLesson = lessons[nextLessonIndex];
 
-        if (nextLesson === undefined) return <></>;
-        console.log(nextLesson.date.getDate(), compare.getDate());
-        if (!isSameDay(nextLesson.date, compare)) return <></>;
+        if (nextLesson === undefined) return <>{compare.getDate()}</>;
+        if (!isSameDay(nextLesson.date, compare))
+          return <>{compare.getDate()}</>;
         nextLessonIndex++;
 
         const topic = topicsQuery.data.find(

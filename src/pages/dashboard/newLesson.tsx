@@ -213,7 +213,7 @@ function ListAllLessons({
       .concat([
         <Link
           key={titles.length - 2}
-          href={`/dashboard/edit/topic/${lesson.id}`}
+          href={`/dashboard/edit/lesson/${lesson.id}`}
         >
           <Button variant={"default"}>Edit</Button>
         </Link>,

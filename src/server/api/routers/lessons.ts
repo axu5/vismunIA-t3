@@ -16,6 +16,36 @@ export const lessonsRouter = createTRPCRouter({
         },
       });
     }),
+  getById: publicProcedure
+    .input(z.string().cuid())
+    .query(async ({ ctx, input }) => {
+      const lesson = await ctx.prisma.lesson.findFirst({
+        where: {
+          id: input,
+        },
+      });
+      if (lesson === null) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Lesson not found",
+        });
+      }
+      const topic = await ctx.prisma.topic.findFirst({
+        where: {
+          id: lesson.topicId,
+        },
+      });
+      if (topic === null) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Topic not found",
+        });
+      }
+      return {
+        lesson,
+        topic,
+      };
+    }),
 
   create: protectedProcedureSecretaryGeneral
     .input(
@@ -67,12 +97,46 @@ export const lessonsRouter = createTRPCRouter({
     }),
 
   delete: protectedProcedureSecretaryGeneral
-    .input(z.string().min(1))
+    .input(z.string().cuid())
     .mutation(async ({ ctx, input }) => {
       return await ctx.prisma.lesson.delete({
         where: {
           id: input,
         },
+      });
+    }),
+
+  edit: protectedProcedureSecretaryGeneral
+    .input(
+      z.object({
+        id: z.string().cuid(),
+        data: z.object({
+          location: z.string(),
+          date: z.date(),
+          topicId: z.string().cuid(),
+        }),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // edit
+      if (input.data.date) {
+        const dateStr = makeDateStr(input.data.date);
+        const lesson = await ctx.prisma.lesson.findFirst({
+          where: {
+            dateStr,
+          },
+        });
+        if (lesson !== null && lesson.id !== input.id) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Lesson already exists on that day",
+          });
+        }
+      }
+
+      return await ctx.prisma.lesson.update({
+        where: { id: input.id },
+        data: input.data,
       });
     }),
 });
