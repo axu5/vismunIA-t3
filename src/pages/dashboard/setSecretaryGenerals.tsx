@@ -78,35 +78,12 @@ function DisplayUsers({ users }: { users: User[] }) {
 
   const titles = Object.keys(users[0])
     .map((x) => (x || "").toLocaleString())
-    .concat(["Role", "Delete Account"]);
+    .concat(["Delete Account"]);
 
   const rows = users.map((user) => {
-    return Object.values(user)
+    const row = Object.values(user)
       .map((u, i) => <p key={i}>{u?.toLocaleString()}</p>)
       .concat([
-        <DropdownMenu key={users.length}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">Open</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Change role</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup
-              value={user.role}
-              onValueChange={(role) => updateUserRole(user)(role as UserRole)}
-            >
-              <DropdownMenuRadioItem value={UserRole.STUDENT}>
-                STUDENT
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value={UserRole.SECRETARY_GENERAL}>
-                SECRETARY GENERAL
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value={UserRole.TEACHER}>
-                TEACHER
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>,
         <Button
           onClick={deleteUser(user)}
           key={users.length + 1}
@@ -115,6 +92,33 @@ function DisplayUsers({ users }: { users: User[] }) {
           DELETE
         </Button>,
       ]);
+
+    row[7] = (
+      <DropdownMenu key={7}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">{user.role}</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuLabel>Change role</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuRadioGroup
+            value={user.role}
+            onValueChange={(role) => updateUserRole(user)(role as UserRole)}
+          >
+            <DropdownMenuRadioItem value={UserRole.STUDENT}>
+              STUDENT
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value={UserRole.SECRETARY_GENERAL}>
+              SECRETARY GENERAL
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value={UserRole.TEACHER}>
+              TEACHER
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+    return row;
   });
 
   const exclude = ["updatedAt", "id", "emailVerified", "image"];

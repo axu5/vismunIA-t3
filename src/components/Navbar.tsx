@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Button } from "./ui/button";
-import TypographyH1 from "./ui/TypographyH1";
+import { Button } from "@/components/ui/button";
+import TypographyH1 from "@/components/ui/TypographyH1";
+import TypographyP from "@/components/ui/TypographyP";
 import { useSession } from "next-auth/react";
-import TypographyP from "./ui/TypographyP";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,14 +11,14 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "./ui/NavigationMenu";
+} from "@/components/ui/NavigationMenu";
 import { useMemo } from "react";
-import React from "react";
+import * as React from "react";
 import { cn } from "@/utils/cn";
 
 const Navbar = () => {
   const { data: session, status } = useSession();
-  const privilege = useMemo(() => {
+  const role = useMemo(() => {
     return session?.user.role;
   }, [session]);
 
@@ -53,115 +53,15 @@ const Navbar = () => {
               </NavigationMenuItem>
             </>
           )}
-          {(privilege === "SECRETARY_GENERAL" || privilege === "TEACHER") && (
-            <SecretaryGeneralOptions />
+          {(role === "SECRETARY_GENERAL" || role === "TEACHER") && (
+            <Link href="/dashboard">
+              <Button variant="link">Admin dashboard</Button>
+            </Link>
           )}
-          {privilege === "TEACHER" && <TeacherOptions />}
         </NavigationMenuList>
       </NavigationMenu>
     </>
   );
 };
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-slate-100 focus:bg-slate-100 dark:hover:bg-slate-700 dark:focus:bg-slate-700",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-slate-500 dark:text-slate-400">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
-
-function SecretaryGeneralOptions() {
-  const components: { title: string; href: string; description: string }[] = [
-    {
-      title: "Dashboard",
-      href: "/dashboard",
-      description:
-        "A dashboard for secretary generals and teachers to set and edit events",
-    },
-    {
-      title: "Create a new Topic",
-      href: "/dashboard/newTopic",
-      description:
-        "To start a new topic click here, and fill in the form. Then create sessions with this topic to show for students.",
-    },
-    {
-      title: "Create a new Lesson",
-      href: "/dashboard/newLesson",
-      description:
-        "To create a lesson click here, and fill in the form. This will make a scheduled lesson that will make it easy to manage files and share things with the students.",
-    },
-  ];
-  return (
-    <NavigationMenuList>
-      <NavigationMenuItem>
-        <NavigationMenuTrigger>
-          Secretary General settings
-        </NavigationMenuTrigger>
-        <NavigationMenuContent>
-          <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-            {components.map((component) => (
-              <ListItem
-                key={component.title}
-                title={component.title}
-                href={component.href}
-              >
-                {component.description}
-              </ListItem>
-            ))}
-          </ul>
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-    </NavigationMenuList>
-  );
-}
-
-function TeacherOptions() {
-  const components: { title: string; href: string; description: string }[] = [
-    {
-      title: "Change secretary generals",
-      href: "/dashboard/setSecretaryGenerals",
-      description: "Set new secretary generals or remove the old ones.",
-    },
-  ];
-  return (
-    <NavigationMenuList>
-      <NavigationMenuItem>
-        <NavigationMenuTrigger>Teacher settings</NavigationMenuTrigger>
-        <NavigationMenuContent>
-          <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-            {components.map((component) => (
-              <ListItem
-                key={component.title}
-                title={component.title}
-                href={component.href}
-              >
-                {component.description}
-              </ListItem>
-            ))}
-          </ul>
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-    </NavigationMenuList>
-  );
-}
 
 export default Navbar;

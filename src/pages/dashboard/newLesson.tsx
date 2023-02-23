@@ -13,7 +13,7 @@ import Link from "next/link";
 import type { NextPage } from "next/types";
 import { type FormEvent, useState } from "react";
 
-const Dashboard: NextPage = () => {
+const NewLesson: NextPage = () => {
   // use state hell
   const [location, setLocation] = useState("");
   const [day, setDay] = useState(0);
@@ -222,4 +222,4 @@ function ListAllLessons({
   return <TypographyTable titles={titles} rows={rows} />;
 }
 
-export default Dashboard;
+export default NewLesson;
