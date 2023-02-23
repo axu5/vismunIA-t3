@@ -11,7 +11,8 @@ import { api } from "@/utils/api";
 import type { Lesson } from "@prisma/client";
 import Link from "next/link";
 import type { NextPage } from "next/types";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 const NewLesson: NextPage = () => {
   const { toast } = useToast();
@@ -20,10 +21,10 @@ const NewLesson: NextPage = () => {
   const [day, setDay] = useState(0);
   const [month, setMonth] = useState(0);
   const [year, setYear] = useState(0);
-  const [hour, setHour] = useState(0);
-  const [minute, setMinute] = useState(0);
   const [topic, setTopic] = useState("");
+
   const utils = api.useContext();
+  const router = useRouter();
 
   const allLessons = api.lessons.getAll.useQuery();
   const allTopics = api.topics.getAll.useQuery(undefined, {
@@ -38,12 +39,6 @@ const NewLesson: NextPage = () => {
       await utils.lessons.invalidate();
     },
   });
-  function deleteMe(lesson: Lesson) {
-    return () => {
-      deleter.mutate(lesson.id);
-    };
-  }
-
   const creator = api.lessons.create.useMutation({
     async onSuccess() {
       await utils.lessons.invalidate();
@@ -56,6 +51,24 @@ const NewLesson: NextPage = () => {
       });
     },
   });
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { y, m, d } = router.query;
+    console.log(y, m, d);
+    if (y && m && d) {
+      setYear(Number(y));
+      setMonth(Number(m));
+      setDay(Number(d));
+    }
+  }, [router.isReady, router.query]);
+
+  function deleteMe(lesson: Lesson) {
+    return () => {
+      deleter.mutate(lesson.id);
+    };
+  }
+
   function createNewSession(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     // try to set date
@@ -65,8 +78,8 @@ const NewLesson: NextPage = () => {
       date.setFullYear(year);
       date.setMonth(month - 1);
       date.setDate(day);
-      date.setHours(hour);
-      date.setMinutes(minute);
+      date.setHours(0);
+      date.setMinutes(0);
       date.setSeconds(0);
       date.setMilliseconds(0);
 
@@ -89,7 +102,7 @@ const NewLesson: NextPage = () => {
 
   return (
     <UserAllowed allowed={["SECRETARY_GENERAL", "TEACHER"]}>
-      <TypographyH1 title="New Session" />
+      <TypographyH1 title="Create a new Lesson" />
       {/* TODO: COULD BE BETTER FROM UX */}
       <form onSubmit={createNewSession}>
         <TypographyH4 title="Location" />
@@ -105,6 +118,7 @@ const NewLesson: NextPage = () => {
         <div>
           <Input
             type="text"
+            value={day}
             inputMode="numeric" // for phones
             onChange={(e) => {
               const number = Number(e.target.value);
@@ -116,6 +130,7 @@ const NewLesson: NextPage = () => {
           />
           <Input
             type="text"
+            value={month}
             inputMode="numeric" // for phones
             onChange={(e) => {
               const number = Number(e.target.value);
@@ -127,6 +142,7 @@ const NewLesson: NextPage = () => {
           />
           <Input
             type="text"
+            value={year}
             inputMode="numeric" // for phones
             onChange={(e) => {
               const number = Number(e.target.value);
@@ -134,28 +150,6 @@ const NewLesson: NextPage = () => {
               setYear(number);
             }}
             placeholder="Year"
-            required={true}
-          />
-          <Input
-            type="text"
-            inputMode="numeric" // for phones
-            onChange={(e) => {
-              const number = Number(e.target.value);
-              if (isNaN(number)) return;
-              setHour(number);
-            }}
-            placeholder="Hour"
-            required={true}
-          />
-          <Input
-            type="text"
-            inputMode="numeric" // for phones
-            onChange={(e) => {
-              const number = Number(e.target.value);
-              if (isNaN(number)) return;
-              setMinute(number);
-            }}
-            placeholder="Minute"
             required={true}
           />
         </div>

@@ -3,6 +3,7 @@ import { type UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { type FC, type ReactNode } from "react";
+import { Button } from "./ui/button";
 
 interface UserAllowedComponent {
   allowed: UserRole[];
@@ -16,12 +17,7 @@ const UserAllowed: FC<UserAllowedComponent> = ({ allowed, children }) => {
   } else if (!checkRoles(data.user.role, allowed)) {
     return <></>;
   } else {
-    return (
-      <>
-        <Link href="/dashboard">Go to admin dashboard</Link>
-        {children}
-      </>
-    );
+    return <>{children}</>;
   }
 };
 

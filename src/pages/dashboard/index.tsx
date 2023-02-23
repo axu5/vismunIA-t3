@@ -11,19 +11,19 @@ const Dashboard: NextPage = () => {
     {
       title: "New Lesson",
       description: "Create a new lesson by clicking here",
-      href: "/newLesson",
+      href: "/edit/lesson",
     },
     {
       title: "New Topic",
       description: "Create a new MUN topic by clicking here",
-      href: "/newTopic",
+      href: "/edit/topic",
     },
   ];
   const teacherContent: linkType[] = [
     {
       title: "Set secretary generals",
       description: "Edit permissions of students",
-      href: "/setSecretaryGenerals",
+      href: "/edit/users",
     },
   ];
   return (

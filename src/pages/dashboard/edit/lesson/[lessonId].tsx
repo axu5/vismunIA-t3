@@ -30,7 +30,7 @@ const TopicEditor: NextPage = () => {
   const topicsQuery = api.topics.getAll.useQuery();
   const deleter = api.lessons.delete.useMutation({
     async onSuccess() {
-      await router.push("/dashboard/newLesson");
+      await router.push("/dashboard/edit/lesson");
     },
   });
   const editor = api.lessons.edit.useMutation({
@@ -75,7 +75,7 @@ const TopicEditor: NextPage = () => {
   if (lessonQuery.isSuccess) {
     return (
       <div>
-        <Link href="/dashboard/newTopic">Go back</Link>
+        <Link href="/dashboard/edit/topic">Go back</Link>
         <form onSubmit={editMe}>
           <TypographyH4 title="Lesson Location" />
           <Input
@@ -91,7 +91,9 @@ const TopicEditor: NextPage = () => {
           />
           <TypographyH4 title="Lesson date" />
           <Input
-            value={lesson.date.toDateString()}
+            value={`${lesson.date.getFullYear()}-${
+              lesson.date.getMonth() + 1
+            }-${lesson.date.getDate()}`}
             type="text"
             placeholder="Topic title"
             onChange={(e) =>
@@ -104,7 +106,7 @@ const TopicEditor: NextPage = () => {
           <TypographyH4 title="Lesson topic" />
           {topicsQuery.isSuccess &&
             (topicsQuery.data.length === 0 ? (
-              <Link href="/dashboard/newTopic">
+              <Link href="/dashboard/edit/topic">
                 <Button variant="link">No topics found CLICK HERE</Button>
               </Link>
             ) : (
@@ -127,7 +129,7 @@ const TopicEditor: NextPage = () => {
               </RadioGroup>
             ))}
           <Button variant="destructive" type="button" onClick={deleteMe}>
-            Delete this topic
+            Delete this lesson
           </Button>
           <Button type="submit">Save changes</Button>
         </form>

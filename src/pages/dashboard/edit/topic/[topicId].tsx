@@ -23,7 +23,7 @@ const TopicEditor: NextPage = () => {
   });
   const deleter = api.topics.delete.useMutation({
     async onSuccess() {
-      await router.push("/dashboard/newTopic");
+      await router.push("/dashboard/edit/topic");
     },
   });
   function deleteMe() {

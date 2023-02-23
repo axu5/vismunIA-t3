@@ -51,7 +51,7 @@ const Navbar = () => {
           )}
           {(role === "SECRETARY_GENERAL" || role === "TEACHER") && (
             <Link href="/dashboard">
-              <Button variant="link">Admin dashboard</Button>
+              <Button variant="subtle">Admin dashboard</Button>
             </Link>
           )}
         </NavigationMenuList>

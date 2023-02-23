@@ -72,14 +72,14 @@ export const lessonsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // 2 lessons can't exist on the same date
       const { location, date, topicId } = input;
+      console.log(date);
       const dateStrIdentifier = makeDateStr(date);
-      const sameDate = await ctx.prisma.lesson.findFirst({
+      const exists = await ctx.prisma.lesson.findFirst({
         where: {
           dateStr: dateStrIdentifier,
         },
       });
-      console.log(sameDate);
-      if (sameDate !== null) {
+      if (exists !== null) {
         throw new TRPCError({
           code: "CONFLICT",
           message: `Lesson already exists on date ${dateStrIdentifier}`,
@@ -142,5 +142,6 @@ export const lessonsRouter = createTRPCRouter({
 });
 
 function makeDateStr(date: Date) {
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDay()}`;
+  console.log(date);
+  return date.toDateString();
 }
