@@ -2,7 +2,6 @@ import UserAllowed from "@/components/UserAllowed";
 import { Button } from "@/components/ui/button";
 import TypographyH1 from "@/components/ui/TypographyH1";
 import TypographyTable from "@/components/ui/TypographyTable";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/ui/use-toast";
 import { api } from "@/utils/api";
 import { type User, UserRole } from "@prisma/client";

@@ -1,6 +1,5 @@
 import TypographyH2 from "@/components/ui/TypographyH2";
 import TypographyH3 from "@/components/ui/TypographyH3";
-import TypographyH4 from "@/components/ui/TypographyH4";
 import TypographyP from "@/components/ui/TypographyP";
 import { type NextPage } from "next";
 
