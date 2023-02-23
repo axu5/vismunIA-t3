@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/ui/use-toast";
 import type { Lesson, Topic } from "@prisma/client";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import Loading from "@/components/Loading";
 
 const TopicEditor: NextPage = () => {
   const { toast } = useToast();
@@ -17,7 +18,6 @@ const TopicEditor: NextPage = () => {
   const [topic, setTopic] = useState<Topic>();
   const [topicId, setTopicId] = useState("");
   const router = useRouter();
-  if (!router.isReady) return <>Loading router...</>;
   const { lessonId } = router.query;
   const _lessonId = typeof lessonId === "string" ? lessonId : "";
   const lessonQuery = api.lessons.getById.useQuery(_lessonId, {
@@ -41,8 +41,8 @@ const TopicEditor: NextPage = () => {
       });
     },
   });
-  if (lessonQuery.isLoading) return <>Loading lesson...</>;
-  if (topicsQuery.isLoading) return <>Loading topics...</>;
+  if (!router.isReady || lessonQuery.isLoading || topicsQuery.isLoading)
+    return <Loading />;
   function deleteMe() {
     deleter.mutate(_lessonId);
   }
@@ -68,7 +68,6 @@ const TopicEditor: NextPage = () => {
     });
   }
 
-  if (lessonQuery.isLoading) return <h1>Loading...</h1>;
   if (lessonQuery.isError) return <h1>{lessonQuery.error.message}</h1>;
   if (lesson === undefined || topic === undefined)
     return <>Something went wrong</>;

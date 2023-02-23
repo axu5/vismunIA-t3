@@ -37,6 +37,7 @@ const NewLesson: NextPage = () => {
   const deleter = api.lessons.delete.useMutation({
     async onSuccess() {
       await utils.lessons.invalidate();
+      setLocation("");
     },
   });
   const creator = api.lessons.create.useMutation({
@@ -53,15 +54,13 @@ const NewLesson: NextPage = () => {
   });
 
   useEffect(() => {
-    if (!router.isReady) return;
     const { y, m, d } = router.query;
-    console.log(y, m, d);
     if (y && m && d) {
       setYear(Number(y));
       setMonth(Number(m));
       setDay(Number(d));
     }
-  }, [router.isReady, router.query]);
+  }, [router.query]);
 
   function deleteMe(lesson: Lesson) {
     return () => {
@@ -78,18 +77,14 @@ const NewLesson: NextPage = () => {
       date.setFullYear(year);
       date.setMonth(month - 1);
       date.setDate(day);
-      date.setHours(0);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
 
-      if (date.getTime() <= Date.now()) throw "Date must be in the future";
+      // this validation is not required
+      //   if (date.getTime() <= Date.now()) throw "Date must be in the future";
       const obj = {
         location,
         date,
         topicId: topic,
       };
-      console.log("OBJ", obj);
       creator.mutate(obj);
     } catch (e) {
       toast({
@@ -156,7 +151,7 @@ const NewLesson: NextPage = () => {
         <TypographyH4 title="Select the topic this relates to" />
         {allTopics.isSuccess &&
           (allTopics.data.length === 0 ? (
-            <Link href="/dashboard/newTopic">
+            <Link href="/dashboard/edit/topic">
               <Button variant="link">No topics found CLICK HERE</Button>
             </Link>
           ) : (

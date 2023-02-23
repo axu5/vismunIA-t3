@@ -14,6 +14,14 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+
+model Document {
+    id              String       @id @default(cuid())
+    docURI          String
+    countryId       String
+    country         Country      @relation(fields: [countryId], references: [id])
+}
+
 // Needed to have a balanced debate
 enum Position {
     FOR
@@ -24,12 +32,12 @@ enum Position {
 model Country {
     id            String       @id @default(cuid())
     name          String
-    // URI array
-    documents     String[]
+    documents     Document[]
     position      Position
-    topic         Topic        @relation(fields: [topicId], references: [id])
     topicId       String
-    students      User[]
+    topic         Topic        @relation(fields: [topicId], references: [id])
+    // Attendance of student id's
+    attendanace   String[]
 }
 
 model Lesson {
@@ -43,13 +51,12 @@ model Lesson {
     topicId       String
 }
 
+
 model Topic {
     id              String       @id  @default(cuid())
     createdAt       DateTime     @default(now())
     title           String       @unique
-    description     String
-    // URI Array
-    sharedDocuments String[]
+    description     String       @default("No description")
     countries       Country[]
     sessions        Lesson[]
 }
@@ -69,10 +76,8 @@ model User {
     emailVerified DateTime?
     image         String?
     role          UserRole      @default(STUDENT)
+    // Lesson id's for attendance
     attendance    Lesson[]
-    
-    // Should not be used
-    countries     Country[]
     
     // Next Auth things
     accounts      Account[]

@@ -1,9 +1,7 @@
 import checkRoles from "@/utils/clientCheckRole";
 import { type UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { type FC, type ReactNode } from "react";
-import { Button } from "./ui/button";
 
 interface UserAllowedComponent {
   allowed: UserRole[];

@@ -7,6 +7,7 @@ import TypographyH4 from "@/components/ui/TypographyH4";
 import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { useToast } from "@/hooks/ui/use-toast";
+import Loading from "@/components/Loading";
 
 const TopicEditor: NextPage = () => {
   const { toast } = useToast();
@@ -48,12 +49,12 @@ const TopicEditor: NextPage = () => {
     });
   }
 
-  if (topic.isLoading) return <h1>Loading...</h1>;
+  if (topic.isLoading) return <Loading />; //<h1>Loading...</h1>;
   if (topic.isError) return <h1>{topic.error.message}</h1>;
   if (topic.isSuccess) {
     return (
       <div>
-        <Link href="/dashboard/newTopic">Go back</Link>
+        <Link href="/dashboard/edit/topic">Go back</Link>
         <form onSubmit={editMe}>
           <TypographyH4 title="TOPIC TITLE" />
           <Input
