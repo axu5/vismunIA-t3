@@ -17,7 +17,7 @@ datasource db {
 
 model Document {
     id              String       @id @default(cuid())
-    docURI          String
+    uri             String
     countryId       String
     country         Country      @relation(fields: [countryId], references: [id])
 }
@@ -36,8 +36,8 @@ model Country {
     position      Position
     topicId       String
     topic         Topic        @relation(fields: [topicId], references: [id])
+    studentIds    String[]
     // Attendance of student id's
-    attendanace   String[]
 }
 
 model Lesson {
@@ -46,7 +46,8 @@ model Lesson {
     date          DateTime
     // Only allow one lesson per day
     dateStr       String       @unique
-    attendance    User[]
+    // Attendance in userId array
+    attendance    String[]
     topic         Topic        @relation(fields: [topicId], references: [id])
     topicId       String
 }
@@ -56,7 +57,7 @@ model Topic {
     id              String       @id  @default(cuid())
     createdAt       DateTime     @default(now())
     title           String       @unique
-    description     String       @default("No description")
+    description     String       @default("No description") @db.Text
     countries       Country[]
     sessions        Lesson[]
 }
@@ -73,13 +74,13 @@ model User {
     updatedAt     DateTime      @updatedAt
     name          String
     email         String        @unique
-    emailVerified DateTime?
     image         String?
     role          UserRole      @default(STUDENT)
     // Lesson id's for attendance
-    attendance    Lesson[]
+    attendance    String[]
     
     // Next Auth things
+    emailVerified DateTime?
     accounts      Account[]
     sessions      Session[]
 }

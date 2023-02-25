@@ -138,12 +138,12 @@ export default function TableContent() {
             <TypographyP
               text={topic.description ? topic.description : "No description"}
             />
-            {isAuthorized && (
-              <Button variant="ghost" onClick={deleteMe(nextLesson)}>
-                <TrashIcon />
-              </Button>
-            )}
           </Link>
+          {isAuthorized && (
+            <Button variant="ghost" onClick={deleteMe(nextLesson)}>
+              <TrashIcon />
+            </Button>
+          )}
         </div>
       ) as ReactNode;
     });

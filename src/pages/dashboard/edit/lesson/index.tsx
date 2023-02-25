@@ -42,7 +42,14 @@ const NewLesson: NextPage = () => {
   });
   const creator = api.lessons.create.useMutation({
     async onSuccess() {
+      setLocation("");
+      setDay(0);
+      setMonth(0);
+      setYear(0);
       await utils.lessons.invalidate();
+      toast({
+        title: "Successfully created lesson",
+      });
     },
     onError({ message }) {
       toast({
@@ -103,6 +110,7 @@ const NewLesson: NextPage = () => {
         <TypographyH4 title="Location" />
         <Input
           type="text"
+          value={location}
           onChange={(e) => {
             setLocation(e.target.value);
           }}

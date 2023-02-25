@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { useToast } from "@/hooks/ui/use-toast";
 import Loading from "@/components/Loading";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const TopicEditor: NextPage = () => {
   const { toast } = useToast();
@@ -56,17 +58,18 @@ const TopicEditor: NextPage = () => {
       <div>
         <Link href="/dashboard/edit/topic">Go back</Link>
         <form onSubmit={editMe}>
-          <TypographyH4 title="TOPIC TITLE" />
+          <TypographyH4 title="Topic title" />
           <Input
             value={title}
             type="text"
             placeholder="Topic title"
             onChange={(e) => setTitle(e.target.value)}
+            required={true}
           />
-          <TypographyH4 title="TOPIC TITLE" />
-          <Input
+          <Label htmlFor="description">Topic description</Label>
+          <Textarea
+            id="description"
             value={description}
-            type="text"
             placeholder="Topic description"
             onChange={(e) => setDescription(e.target.value)}
           />

@@ -10,6 +10,8 @@ import { type Topic } from "@prisma/client";
 import Link from "next/link";
 import type { NextPage } from "next/types";
 import { type FormEvent, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const Dashboard: NextPage = () => {
   const { toast } = useToast();
@@ -58,6 +60,7 @@ const Dashboard: NextPage = () => {
   function createNewTopic(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setTitle("");
+    setDescription("");
     topicApi.mutate({
       title,
       description,
@@ -76,15 +79,14 @@ const Dashboard: NextPage = () => {
           }}
           value={title}
           placeholder="Enter a topic name..."
+          required={true}
         />
-        <TypographyH4 title="Topic description" />
-        <Input
-          type="text"
-          onChange={(e) => {
-            setDescription(e.target.value);
-          }}
+        <Label htmlFor="description">Topic description</Label>
+        <Textarea
+          id="description"
+          placeholder="Topic description"
+          onChange={(e) => setDescription(e.target.value)}
           value={description}
-          placeholder="Enter a topic description..."
         />
         <Button type="submit" variant="default">
           Create new topic
@@ -130,8 +132,9 @@ function ListTopics({
         </Button>,
       ]);
   });
+  const exclude = ["id"];
 
-  return <TypographyTable titles={titles} rows={rows} />;
+  return <TypographyTable titles={titles} rows={rows} exclude={exclude} />;
 }
 
 export default Dashboard;

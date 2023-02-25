@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/NavigationMenu";
 import { useMemo } from "react";
 import * as React from "react";
+import TypographyH2 from "./ui/TypographyH2";
+import TypographyH3 from "./ui/TypographyH3";
 
 const Navbar = () => {
   const { data: session, status } = useSession();
@@ -20,42 +22,45 @@ const Navbar = () => {
 
   return (
     <>
-      <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <Link href="/">
-              <TypographyH1 title="VIS MUN" />
-            </Link>
-          </NavigationMenuItem>
+      <div className="flex flex-row justify-between">
+        <div className="flex">
+          <Link href="/">
+            <TypographyH1 title="VIS MUN" />
+          </Link>
+        </div>
+        <div>
           {status !== "authenticated" ? (
-            <NavigationMenuItem>
+            <div>
               <Link href="/api/auth/signin">
                 <Button variant="default">Sign in with Google</Button>
               </Link>
-            </NavigationMenuItem>
+            </div>
           ) : (
-            <>
-              <NavigationMenuItem>
-                <TypographyP text={`Welcome ${session.user.name as string}`} />
-                <Avatar>
+            <div className="flex flex-row">
+              <div className="flex flex-row">
+                {/* <Avatar className="">
                   <AvatarImage src={session.user.image || ""} />
                   <AvatarFallback>{session.user.name}</AvatarFallback>
-                </Avatar>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
+                </Avatar> */}
+                <TypographyH3
+                  className="inline-block align-middle"
+                  title={`Welcome ${session.user.name as string}`}
+                />
+              </div>
+              <div>
                 <Link href="/api/auth/signout">
                   <Button variant="subtle">Log out</Button>
                 </Link>
-              </NavigationMenuItem>
-            </>
+                {(role === "SECRETARY_GENERAL" || role === "TEACHER") && (
+                  <Link href="/dashboard">
+                    <Button variant="subtle">Admin dashboard</Button>
+                  </Link>
+                )}
+              </div>
+            </div>
           )}
-          {(role === "SECRETARY_GENERAL" || role === "TEACHER") && (
-            <Link href="/dashboard">
-              <Button variant="subtle">Admin dashboard</Button>
-            </Link>
-          )}
-        </NavigationMenuList>
-      </NavigationMenu>
+        </div>
+      </div>
     </>
   );
 };
