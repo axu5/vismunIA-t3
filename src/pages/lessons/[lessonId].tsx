@@ -11,7 +11,7 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { createInnerTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
-import { Country, Document, Position } from "@prisma/client";
+import type { Country, Document, Position } from "@prisma/client";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -94,7 +94,7 @@ export default function Lessons({
     api.documents.getByTopic.useQuery(topicId);
   const utils = api.useContext();
   // TODO: Somehow get the flag?
-  const countryRef = useRef();
+  const countryRef = useRef<HTMLInputElement>(null);
   const newCountryMutator = api.countries.create.useMutation({
     onError() {
       toast({
@@ -130,7 +130,7 @@ export default function Lessons({
   function handleNewCountry(e: FormEvent) {
     e.preventDefault();
     if (!countryRef || !countryRef.current || !countryRef.current.value) return;
-    const countryName = countryRef.current.value as string;
+    const countryName = countryRef.current.value;
     if (!countryName) return;
 
     // cuid parser
