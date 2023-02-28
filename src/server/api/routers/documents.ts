@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const documentsRouter = createTRPCRouter({
-  getByCountry: protectedProcedure
+  getByCountry: publicProcedure
     .input(z.string().cuid())
     .query(async ({ ctx, input }) => {
       const documents = await ctx.prisma.document.findMany({
@@ -14,7 +14,18 @@ export const documentsRouter = createTRPCRouter({
 
       return documents;
     }),
-  getById: protectedProcedure
+  getByTopic: publicProcedure
+    .input(z.string().cuid())
+    .query(async ({ ctx, input }) => {
+      const documents = await ctx.prisma.document.findMany({
+        where: {
+          topicId: input,
+        },
+      });
+
+      return documents;
+    }),
+  getById: publicProcedure
     .input(z.string().cuid())
     .query(async ({ ctx, input }) => {
       const document = await ctx.prisma.document.findUnique({
@@ -25,6 +36,7 @@ export const documentsRouter = createTRPCRouter({
 
       return document;
     }),
+
   create: protectedProcedure
     .input(
       z.object({
@@ -57,13 +69,14 @@ export const documentsRouter = createTRPCRouter({
       if (!country.studentIds.includes(id)) throw error;
 
       // if all was successful create document with reference to the country
-      const document = await ctx.prisma.document.create({
-        data: {
-          countryId: input.countryId,
-          uri: input.uri,
-        },
-      });
+      //   const document = await ctx.prisma.document.create({
+      //     data: {
+      //       countryId: input.countryId,
+      //       uri: input.uri,
+      //     },
+      //   });
 
-      return document;
+      //   return document;
+      return true;
     }),
 });

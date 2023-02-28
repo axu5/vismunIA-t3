@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import TypographyH4 from "@/components/ui/TypographyH4";
+import { ArrowRight } from "lucide-react";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -37,13 +38,16 @@ const Home: NextPage = () => {
         <TypographyH2 title="MUN Lessons coming up" />
         <TypographyH4 title="Go back or forwards in months" />
         <Link href={page === 1 ? `/` : `/?page=${page - 1}`}>
-          <Button variant="link">Back</Button>
+          <Button variant="link">Backward</Button>
         </Link>
         <Link href="/">
           <Button variant="default">Today</Button>
         </Link>
         <Link href={page === -1 ? `/` : `/?page=${page + 1}`}>
-          <Button variant="link">Forward</Button>
+          <Button variant="link">
+            Forward
+            <ArrowRight />
+          </Button>
         </Link>
         <TypographyTable titles={days} rows={TableContent()} />
       </div>

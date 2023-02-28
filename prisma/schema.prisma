@@ -20,6 +20,8 @@ model Document {
     uri             String
     countryId       String
     country         Country      @relation(fields: [countryId], references: [id])
+    topicId         String
+    topic           Topic        @relation(fields: [topicId], references: [id])
 }
 
 // Needed to have a balanced debate
@@ -38,6 +40,8 @@ model Country {
     topic         Topic        @relation(fields: [topicId], references: [id])
     studentIds    String[]
     // Attendance of student id's
+
+    @@unique([topicId, name])
 }
 
 model Lesson {
@@ -59,6 +63,7 @@ model Topic {
     title           String       @unique
     description     String       @default("No description") @db.Text
     countries       Country[]
+    documents       Document[]
     sessions        Lesson[]
 }
 
