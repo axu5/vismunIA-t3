@@ -19,7 +19,7 @@ const TypographyTable: FC<TypographyTableProps> = ({
   }
 
   return (
-    <div className="my-6 w-full overflow-y-auto">
+    <div className="my-6 w-full overflow-y-auto rounded">
       <table className="w-full">
         <thead>
           <tr className="m-0 border-t border-slate-300 p-0 even:bg-slate-100 dark:border-slate-700 dark:even:bg-slate-800">

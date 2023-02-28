@@ -1,15 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { fontFamily } = require("tailwindcss/defaultTheme");
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class", '[data-theme="dark"]'],
   content: ["src/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
-      },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },

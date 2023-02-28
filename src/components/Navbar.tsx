@@ -22,7 +22,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-between">
+      <div className="mx-auto flex w-4/5 flex-row justify-between">
         <div className="flex">
           <Link href="/">
             <TypographyH1 title="VIS MUN" />
@@ -43,7 +43,7 @@ const Navbar = () => {
                   <AvatarFallback>{session.user.name}</AvatarFallback>
                 </Avatar> */}
                 <TypographyH3
-                  className="inline-block align-middle"
+                  className=""
                   title={`Welcome ${session.user.name as string}`}
                 />
               </div>

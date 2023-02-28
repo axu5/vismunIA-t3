@@ -79,9 +79,6 @@ export default function TableContent() {
   const start = add(now, {
     weeks: isNaN(Number(router.query.page)) ? 0 : Number(router.query.page) * 4,
   });
-  const end = add(start, {
-    days: 7 * 4,
-  });
   let nextLessonIndex = 0;
   while (
     isBefore(lessons[nextLessonIndex]?.date || 0, start) &&

@@ -11,7 +11,6 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { createInnerTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
-import type { Country, Document, Position } from "@prisma/client";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,7 @@ import TypographyTable from "@/components/ui/TypographyTable";
 import checkRoles from "@/utils/clientCheckRole";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import type { Country, Document, Position } from "@prisma/client";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { lessonId } = context.query;

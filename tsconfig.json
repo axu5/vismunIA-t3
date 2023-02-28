@@ -30,5 +30,5 @@
     "src/components/ui/dropdown-menu.txs",
     "src/components/ui/dropdown-menu.txs"
   ],
-  "exclude": ["node_modules", "tailwind.config.cjs"]
+  "exclude": ["node_modules"]
 }

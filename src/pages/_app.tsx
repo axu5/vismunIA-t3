@@ -33,7 +33,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <meta name="robots" content="index, follow" />
     </Head>
     <Navbar />
-    <Component {...pageProps} />
+    <main className="mx-auto w-4/5">
+      <Component {...pageProps} />
+    </main>
     <Toaster />
   </SessionProvider>
 );
