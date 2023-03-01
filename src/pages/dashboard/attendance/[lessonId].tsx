@@ -9,7 +9,7 @@ import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 export function getServerSideProps(context: GetServerSidePropsContext) {
   const { lessonId } = context.query;

@@ -146,9 +146,8 @@ export default function Lessons({
   }, [documents, userCountry]);
   const documentCreator = api.documents.create.useMutation({
     async onSuccess(doc) {
-      const name = doc.name as string;
       toast({
-        title: `Created new document ${name}`,
+        title: `Created new document ${doc.name}`,
       });
       if (
         documentNameRef == undefined ||
