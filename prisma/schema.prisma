@@ -20,9 +20,9 @@ model Document {
     name            String
     uri             String
     countryId       String
-    country         Country      @relation(fields: [countryId], references: [id])
+    country         Country      @relation(fields: [countryId], references: [id], onDelete: Cascade)
     topicId         String
-    topic           Topic        @relation(fields: [topicId], references: [id])
+    topic           Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
 }
 
 // Needed to have a balanced debate
@@ -38,7 +38,7 @@ model Country {
     documents     Document[]
     position      Position
     topicId       String
-    topic         Topic        @relation(fields: [topicId], references: [id])
+    topic         Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
     studentIds    String[]
     // Attendance of student id's
 
@@ -53,7 +53,7 @@ model Lesson {
     dateStr       String       @unique
     // Attendance in userId array
     attendance    String[]
-    topic         Topic        @relation(fields: [topicId], references: [id])
+    topic         Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
     topicId       String
 }
 

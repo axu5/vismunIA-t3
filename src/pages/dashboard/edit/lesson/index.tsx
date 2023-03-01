@@ -51,10 +51,9 @@ const NewLesson: NextPage = () => {
         title: "Successfully created lesson",
       });
     },
-    onError({ message }) {
+    onError() {
       toast({
         title: "Failed to create lesson",
-        description: message,
         variant: "destructive",
       });
     },
@@ -166,7 +165,7 @@ const NewLesson: NextPage = () => {
         {allTopics.isSuccess &&
           (allTopics.data.length === 0 ? (
             <Link href="/dashboard/edit/topic">
-              <Button variant="link">No topics found CLICK HERE</Button>
+              <Button variant="destructive">No topics found CLICK HERE</Button>
             </Link>
           ) : (
             <RadioGroup
@@ -187,7 +186,16 @@ const NewLesson: NextPage = () => {
               })}
             </RadioGroup>
           ))}
-        <Button type="submit" variant="default">
+        <Button
+          type="submit"
+          variant={
+            allTopics != undefined &&
+            allTopics.data != undefined &&
+            allTopics.data.length > 0
+              ? "default"
+              : "disabled"
+          }
+        >
           Create new lesson
         </Button>
       </form>
@@ -230,7 +238,8 @@ function ListAllLessons({
       ]);
   });
 
-  return <TypographyTable titles={titles} rows={rows} />;
+  const exclude = ["id", "date", "attendance"];
+  return <TypographyTable titles={titles} rows={rows} exclude={exclude} />;
 }
 
 export default NewLesson;

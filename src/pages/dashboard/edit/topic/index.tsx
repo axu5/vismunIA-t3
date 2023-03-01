@@ -40,13 +40,11 @@ const Dashboard: NextPage = () => {
     },
   });
   const deletion = api.topics.delete.useMutation({
-    onSuccess(data) {
+    async onSuccess(data) {
       toast({
         title: `Deleted topic successfully`,
         description: `Deleted topic named ${data.title}`,
       });
-    },
-    async onSettled() {
       await utils.topics.getAll.invalidate();
     },
   });

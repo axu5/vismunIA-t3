@@ -12,7 +12,7 @@ import { createInnerTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { ExternalLink, Plus, UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signIn, useSession } from "next-auth/react";
 import { z } from "zod";
@@ -24,9 +24,11 @@ import checkRoles from "@/utils/clientCheckRole";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { Country, Document, Position } from "@prisma/client";
+import UserAllowed from "@/components/UserAllowed";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { lessonId } = context.query;
+  console.log("lessonId", lessonId);
   const id = typeof lessonId === "string" ? lessonId : "";
   const ssg = createProxySSGHelpers({
     router: appRouter,
@@ -142,7 +144,30 @@ export default function Lessons({
       return document.countryId === userCountry.id;
     });
   }, [documents, userCountry]);
-  const documentCreator = api.documents.create.useMutation();
+  const documentCreator = api.documents.create.useMutation({
+    async onSuccess(doc) {
+      const name = doc.name as string;
+      toast({
+        title: `Created new document ${name}`,
+      });
+      if (
+        documentNameRef == undefined ||
+        documentNameRef.current == undefined ||
+        documentURIRef == undefined ||
+        documentURIRef.current == undefined
+      )
+        return;
+      documentNameRef.current.value = "";
+      documentURIRef.current.value = "";
+      await utils.documents.invalidate();
+    },
+    onError() {
+      toast({
+        title: "Could not create document",
+        variant: "destructive",
+      });
+    },
+  });
 
   function handleNewCountry(e: FormEvent) {
     e.preventDefault();
@@ -221,10 +246,19 @@ export default function Lessons({
     return <Loading />;
 
   return (
-    <>
+    <UserAllowed allowed={["STUDENT", "SECRETARY_GENERAL", "TEACHER"]}>
       <div className="flex flex-row justify-around">
         <div className="flex flex-col">
           <TypographyH1 title="About the lesson" />
+          {session.user.role === "TEACHER" && (
+            <Link
+              className="flex flex-row"
+              href={`/dashboard/attendance/${lessonId}`}
+            >
+              Take attendance
+              <UsersIcon />
+            </Link>
+          )}
           <TypographyH2 title={lessonQueryData.lesson?.location || ""} />
           <TypographyP
             text={lessonQueryData.lesson?.date.toDateString() || ""}
@@ -236,6 +270,7 @@ export default function Lessons({
                 : `You are a delegate of ${userCountry.name.toUpperCase()}`
             }
           />
+
           {userCountry !== null && (
             <TypographyTable
               titles={[<>Documents</>]}
@@ -244,8 +279,13 @@ export default function Lessons({
                   ? userRelatedDocuments.map(
                       (document: Document, i: number) => {
                         return [
-                          <Link key={i} href={document.uri}>
-                            {document.name}
+                          <Link
+                            className="flex flex-row"
+                            key={i}
+                            href={document.uri}
+                            target="_blank"
+                          >
+                            {document.name} <ExternalLink />
                           </Link>,
                         ];
                       }
@@ -254,6 +294,7 @@ export default function Lessons({
               }
             />
           )}
+
           {userCountry !== null && (
             <form onSubmit={handleNewDocument}>
               <Label htmlFor="document-name">Name of the document</Label>
@@ -285,6 +326,7 @@ export default function Lessons({
             text={lessonQueryData.topic?.description || "No description"}
           />
           <TypographyH2 title="Countries" />
+
           {/* List of all participating countries */}
           <TypographyTable
             titles={[<>Countries</>]}
@@ -332,6 +374,7 @@ export default function Lessons({
                 : [[<>No countries in this lesson</>]]
             }
           />
+
           {isAuthorized && (
             <form onSubmit={handleNewCountry}>
               <Input
@@ -368,6 +411,6 @@ export default function Lessons({
           )}
         </div>
       </div>
-    </>
+    </UserAllowed>
   );
 }

@@ -98,11 +98,13 @@ export const lessonsRouter = createTRPCRouter({
   delete: protectedProcedureSecretaryGeneral
     .input(z.string().cuid())
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.lesson.delete({
+      const lesson = await ctx.prisma.lesson.delete({
         where: {
           id: input,
         },
       });
+
+      return lesson;
     }),
 
   edit: protectedProcedureSecretaryGeneral
