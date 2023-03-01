@@ -14,6 +14,21 @@ import { useToast } from "@/hooks/ui/use-toast";
 import { useRouter } from "next/router";
 import TypographyH4 from "./ui/TypographyH4";
 
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 export default function TableContent() {
   const { toast } = useToast();
   const { data, status } = useSession();
@@ -37,21 +52,6 @@ export default function TableContent() {
       });
     },
   });
-
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
 
   if (
     lessonsQuery.isLoading ||
