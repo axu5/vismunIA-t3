@@ -227,7 +227,8 @@ export default function Lessons({
               titles={[<>Documents</>]}
               rows={
                 documents.filter(
-                  (doc: Document) => doc.countryId === userCountry.id
+                  (doc: Document) =>
+                    userCountry != undefined && doc.countryId === userCountry.id
                 ).length > 0
                   ? documents
                       .filter(
