@@ -19,12 +19,20 @@ const TopicEditor: NextPage = () => {
   const [topicId, setTopicId] = useState("");
   const router = useRouter();
   const { lessonId } = router.query;
+  if (!router.isReady) return <Loading />;
   const _lessonId = typeof lessonId === "string" ? lessonId : "";
   const lessonQuery = api.lessons.getById.useQuery(_lessonId, {
     onSuccess({ lesson: l, topic: t }) {
       setLesson(l);
       setTopic(t);
       setTopicId(t.id);
+    },
+    onError(error) {
+      toast({
+        title: "An error has occurred",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
   const topicsQuery = api.topics.getAll.useQuery();
@@ -74,7 +82,7 @@ const TopicEditor: NextPage = () => {
   if (lessonQuery.isSuccess) {
     return (
       <div>
-        <Link href="/dashboard/edit/topic">Go back</Link>
+        <Link href="/dashboard/edit/lesson">Go back</Link>
         <form onSubmit={editMe}>
           <TypographyH4 title="Lesson Location" />
           <Input

@@ -119,8 +119,10 @@ const NewLesson: NextPage = () => {
         />
         <TypographyH4 title="Select a date and time" />
         <div>
+          <Label htmlFor="day">Day</Label>
           <Input
             type="text"
+            id="day"
             value={day}
             inputMode="numeric" // for phones
             onChange={(e) => {
@@ -131,8 +133,10 @@ const NewLesson: NextPage = () => {
             placeholder="Day"
             required={true}
           />
+          <Label htmlFor="month">Month</Label>
           <Input
             type="text"
+            id="day"
             value={month}
             inputMode="numeric" // for phones
             onChange={(e) => {
@@ -143,8 +147,10 @@ const NewLesson: NextPage = () => {
             placeholder="Month"
             required={true}
           />
+          <Label htmlFor="year">Year</Label>
           <Input
             type="text"
+            id="year"
             value={year}
             inputMode="numeric" // for phones
             onChange={(e) => {

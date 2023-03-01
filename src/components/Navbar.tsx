@@ -1,17 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import TypographyH1 from "@/components/ui/TypographyH1";
-import TypographyP from "@/components/ui/TypographyP";
 import { useSession } from "next-auth/react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "@/components/ui/NavigationMenu";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { useMemo } from "react";
 import * as React from "react";
-import TypographyH2 from "./ui/TypographyH2";
 import TypographyH3 from "./ui/TypographyH3";
 
 const Navbar = () => {

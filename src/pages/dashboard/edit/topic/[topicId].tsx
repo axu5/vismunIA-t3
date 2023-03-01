@@ -15,9 +15,9 @@ const TopicEditor: NextPage = () => {
   const { toast } = useToast();
   const router = useRouter();
   const { topicId } = router.query;
-  const _topicId = typeof topicId === "string" ? topicId : "";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const _topicId = typeof topicId === "string" ? topicId : "";
   const topic = api.topics.getById.useQuery(_topicId, {
     onSuccess(data) {
       setTitle(data.title);
@@ -27,6 +27,13 @@ const TopicEditor: NextPage = () => {
   const deleter = api.topics.delete.useMutation({
     async onSuccess() {
       await router.push("/dashboard/edit/topic");
+    },
+    onError(error) {
+      toast({
+        title: "An unexpected error occurred",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
   function deleteMe() {

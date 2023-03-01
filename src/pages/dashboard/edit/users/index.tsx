@@ -1,3 +1,5 @@
+"use client";
+
 import UserAllowed from "@/components/UserAllowed";
 import { Button } from "@/components/ui/button";
 import TypographyH1 from "@/components/ui/TypographyH1";
@@ -93,7 +95,7 @@ function DisplayUsers({ users }: { users: User[] }) {
         </Button>,
       ]);
 
-    row[7] = (
+    row[6] = (
       <DropdownMenu key={7}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">{user.role}</Button>
@@ -103,7 +105,16 @@ function DisplayUsers({ users }: { users: User[] }) {
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
             value={user.role}
-            onValueChange={(role) => updateUserRole(user)(role as UserRole)}
+            onValueChange={(role) => {
+              // create a prompt if a teacher is being updated
+              if (user.role === "TEACHER") {
+                const result = confirm(
+                  `Are you sure you want to remove teacher role for ${user.name}`
+                );
+                if (result !== true) return;
+              }
+              updateUserRole(user)(role as UserRole);
+            }}
           >
             <DropdownMenuRadioItem value={UserRole.STUDENT}>
               STUDENT
@@ -121,7 +132,7 @@ function DisplayUsers({ users }: { users: User[] }) {
     return row;
   });
 
-  const exclude = ["updatedAt", "id", "emailVerified", "image"];
+  const exclude = ["updatedAt", "id", "emailVerified", "image", "attendance"];
   return <TypographyTable titles={titles} rows={rows} exclude={exclude} />;
 }
 
