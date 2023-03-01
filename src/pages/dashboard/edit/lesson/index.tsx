@@ -75,7 +75,7 @@ const NewLesson: NextPage = () => {
     };
   }
 
-  function createNewSession(e: FormEvent<HTMLFormElement>) {
+  function createNewLesson(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     // try to set date
     try {
@@ -106,7 +106,7 @@ const NewLesson: NextPage = () => {
     <UserAllowed allowed={["SECRETARY_GENERAL", "TEACHER"]}>
       <TypographyH1 title="Create a new Lesson" />
       {/* TODO: COULD BE BETTER FROM UX */}
-      <form onSubmit={createNewSession}>
+      <form onSubmit={createNewLesson}>
         <TypographyH4 title="Location" />
         <Input
           type="text"
@@ -114,7 +114,7 @@ const NewLesson: NextPage = () => {
           onChange={(e) => {
             setLocation(e.target.value);
           }}
-          placeholder="Where is this session going to be held?"
+          placeholder="Where is this lesson going to be held?"
           required={true}
         />
         <TypographyH4 title="Select a date and time" />
@@ -188,7 +188,7 @@ const NewLesson: NextPage = () => {
             </RadioGroup>
           ))}
         <Button type="submit" variant="default">
-          Create new session
+          Create new lesson
         </Button>
       </form>
       {allLessons.isSuccess && (
@@ -205,7 +205,7 @@ function ListAllLessons({
   lessons: Lesson[];
   deleteMe: (_: Lesson) => () => void;
 }) {
-  if (!lessons || lessons.length === 0) return <h1>No sessions found</h1>;
+  if (!lessons || lessons.length === 0) return <h1>No lessons found</h1>;
 
   const titles = Object.keys(lessons[0] || {}).concat(["Edit", "Delete"]);
   const rows = lessons.map((lesson) => {
