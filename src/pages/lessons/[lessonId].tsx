@@ -95,6 +95,8 @@ export default function Lessons({
   const utils = api.useContext();
   // TODO: Somehow get the flag?
   const countryRef = useRef<HTMLInputElement>(null);
+  const documentNameRef = useRef<HTMLInputElement>(null);
+  const documentURIRef = useRef<HTMLInputElement>(null);
   const newCountryMutator = api.countries.create.useMutation({
     onError() {
       toast({
@@ -126,6 +128,7 @@ export default function Lessons({
       });
     },
   });
+  const documentCreator = api.documents.create.useMutation();
 
   function handleNewCountry(e: FormEvent) {
     e.preventDefault();
@@ -164,6 +167,28 @@ export default function Lessons({
     };
   }
 
+  function handleNewDocument(e: FormEvent) {
+    e.preventDefault();
+    // still loading page
+    if (
+      documentNameRef == undefined ||
+      documentNameRef.current == undefined ||
+      documentURIRef == undefined ||
+      documentURIRef.current == undefined ||
+      userCountry == undefined
+    )
+      return;
+    const name = documentNameRef.current.value;
+    const uri = documentURIRef.current.value;
+
+    documentCreator.mutate({
+      countryId: userCountry.id,
+      topicId,
+      name,
+      uri,
+    });
+  }
+
   if (status === "unauthenticated") {
     void signIn();
     return <></>;
@@ -197,6 +222,51 @@ export default function Lessons({
                 : `You are a delegate of ${userCountry.name.toUpperCase()}`
             }
           />
+          {userCountry !== null && (
+            <TypographyTable
+              titles={[<>Documents</>]}
+              rows={
+                documents.filter(
+                  (doc: Document) => doc.countryId === userCountry.id
+                ).length > 0
+                  ? documents
+                      .filter(
+                        (doc: Document) => doc.countryId === userCountry.id
+                      )
+                      .map((document: Document, i: number) => {
+                        return [
+                          <Link key={i} href={document.uri}>
+                            {document.name}
+                          </Link>,
+                        ];
+                      })
+                  : [[<>No documents found for your country</>]]
+              }
+            />
+          )}
+          {userCountry !== null && (
+            <form onSubmit={handleNewDocument}>
+              <Label htmlFor="document-name">Name of the document</Label>
+              <Input
+                id="document-name"
+                ref={documentNameRef}
+                type="text"
+                placeholder="Name of the document"
+                required={true}
+              />
+              <Label htmlFor="link">Link to the document</Label>
+              <Input
+                id="link"
+                ref={documentURIRef}
+                type="text"
+                placeholder="Link to the document"
+                required={true}
+              />
+              <Button variant="subtle" type="submit">
+                <Plus /> Add a new document
+              </Button>
+            </form>
+          )}
         </div>
         <div>
           <TypographyH1 title="About the topic" />
@@ -215,7 +285,7 @@ export default function Lessons({
                     // find docs that belong to country
                     const countryDocs = documents.filter(
                       (doc: Document) => doc.countryId === country.id
-                    );
+                    ).length;
                     const userInThisCountry =
                       isInSomeCountry && country.id === userCountry.id;
                     return [
@@ -245,13 +315,7 @@ export default function Lessons({
                             DELETE
                           </Button>
                         )}
-                        {countryDocs.map((doc) => {
-                          return (
-                            <Link href={doc.uri} key={doc.uri}>
-                              {doc.uri}
-                            </Link>
-                          );
-                        })}
+                        {`Has ${countryDocs} documents`}
                       </div>,
                     ];
                   })

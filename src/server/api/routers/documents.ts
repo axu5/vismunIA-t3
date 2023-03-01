@@ -41,7 +41,9 @@ export const documentsRouter = createTRPCRouter({
     .input(
       z.object({
         countryId: z.string().cuid(),
+        topicId: z.string().cuid(),
         uri: z.string().url(),
+        name: z.string().min(1),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -69,14 +71,15 @@ export const documentsRouter = createTRPCRouter({
       if (!country.studentIds.includes(id)) throw error;
 
       // if all was successful create document with reference to the country
-      //   const document = await ctx.prisma.document.create({
-      //     data: {
-      //       countryId: input.countryId,
-      //       uri: input.uri,
-      //     },
-      //   });
+      const document = await ctx.prisma.document.create({
+        data: {
+          countryId: input.countryId,
+          topicId: input.topicId,
+          uri: input.uri,
+          name: input.name,
+        },
+      });
 
-      //   return document;
-      return true;
+      return document;
     }),
 });
