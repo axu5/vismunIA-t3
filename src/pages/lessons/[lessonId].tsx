@@ -128,6 +128,20 @@ export default function Lessons({
       });
     },
   });
+  const userRelatedDocuments = useMemo(() => {
+    if (
+      documents == undefined ||
+      documents.length == 0 ||
+      userCountry == undefined
+    )
+      return [];
+    // filter all documents to just include
+    // the ones with countryId equal to the
+    // country id of the users country
+    return documents.filter((document) => {
+      return document.countryId === userCountry.id;
+    });
+  }, [documents, userCountry]);
   const documentCreator = api.documents.create.useMutation();
 
   function handleNewCountry(e: FormEvent) {
@@ -226,21 +240,16 @@ export default function Lessons({
             <TypographyTable
               titles={[<>Documents</>]}
               rows={
-                documents.filter(
-                  (doc: Document) =>
-                    userCountry != undefined && doc.countryId === userCountry.id
-                ).length > 0
-                  ? documents
-                      .filter(
-                        (doc: Document) => doc.countryId === userCountry.id
-                      )
-                      .map((document: Document, i: number) => {
+                userRelatedDocuments.length > 0
+                  ? userRelatedDocuments.map(
+                      (document: Document, i: number) => {
                         return [
                           <Link key={i} href={document.uri}>
                             {document.name}
                           </Link>,
                         ];
-                      })
+                      }
+                    )
                   : [[<>No documents found for your country</>]]
               }
             />
