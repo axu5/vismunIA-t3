@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 import * as React from "react";
 import TypographyH3 from "./ui/TypographyH3";
+import { Lock, LogIn, LogOut } from "lucide-react";
 
 const Navbar = () => {
   const { data: session, status } = useSession();
@@ -25,7 +26,10 @@ const Navbar = () => {
           {status !== "authenticated" ? (
             <div>
               <Link href="/api/auth/signin">
-                <Button variant="default">Sign in with Google</Button>
+                <Button variant="default">
+                  Sign in with Google
+                  <LogIn className="mx-2 h-4 w-4" />
+                </Button>
               </Link>
             </div>
           ) : (
@@ -42,11 +46,16 @@ const Navbar = () => {
               </div>
               <div>
                 <Link href="/api/auth/signout">
-                  <Button variant="subtle">Log out</Button>
+                  <Button variant="subtle">
+                    Log out
+                    <LogOut className="mx-2 h-4 w-4" />
+                  </Button>
                 </Link>
                 {(role === "SECRETARY_GENERAL" || role === "TEACHER") && (
                   <Link href="/dashboard">
-                    <Button variant="subtle">Admin dashboard</Button>
+                    <Button variant="subtle">
+                      Admin dashboard <Lock className="mx-2 h-4 w-4" />
+                    </Button>
                   </Link>
                 )}
               </div>

@@ -11,17 +11,18 @@ import { api } from "@/utils/api";
 import type { Lesson } from "@prisma/client";
 import Link from "next/link";
 import type { NextPage } from "next/types";
-import { type FormEvent, useState, useEffect } from "react";
+import { type FormEvent, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+import { Plus } from "lucide-react";
 
 const NewLesson: NextPage = () => {
   const { toast } = useToast();
   // use state hell
-  const [location, setLocation] = useState("");
-  const [day, setDay] = useState(0);
-  const [month, setMonth] = useState(0);
-  const [year, setYear] = useState(0);
   const [topic, setTopic] = useState("");
+  const locationRef = useRef<HTMLInputElement>(null);
+  const dayRef = useRef<HTMLInputElement>(null);
+  const monthRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
 
   const utils = api.useContext();
   const router = useRouter();
@@ -37,15 +38,24 @@ const NewLesson: NextPage = () => {
   const deleter = api.lessons.delete.useMutation({
     async onSuccess() {
       await utils.lessons.invalidate();
-      setLocation("");
+      if (locationRef.current) locationRef.current.value = "";
     },
   });
   const creator = api.lessons.create.useMutation({
     async onSuccess() {
-      setLocation("");
-      setDay(0);
-      setMonth(0);
-      setYear(0);
+      if (
+        !(
+          locationRef.current == undefined ||
+          yearRef.current == undefined ||
+          monthRef.current == undefined ||
+          dayRef.current == undefined
+        )
+      ) {
+        locationRef.current.value = "";
+        yearRef.current.value = "";
+        monthRef.current.value = "";
+        dayRef.current.value = "";
+      }
       await utils.lessons.invalidate();
       toast({
         title: "Successfully created lesson",
@@ -61,10 +71,10 @@ const NewLesson: NextPage = () => {
 
   useEffect(() => {
     const { y, m, d } = router.query;
-    if (y && m && d) {
-      setYear(Number(y));
-      setMonth(Number(m));
-      setDay(Number(d));
+    if (y && m && d && yearRef.current && monthRef.current && dayRef.current) {
+      yearRef.current.value = y.toString();
+      monthRef.current.value = m.toString();
+      dayRef.current.value = d.toString();
     }
   }, [router.query]);
 
@@ -78,16 +88,29 @@ const NewLesson: NextPage = () => {
     e.preventDefault();
     // try to set date
     try {
+      if (
+        locationRef.current == undefined ||
+        yearRef.current == undefined ||
+        monthRef.current == undefined ||
+        dayRef.current == undefined
+      ) {
+        throw "please set all the values";
+      }
+      const loc = locationRef.current.value;
+      const y = yearRef.current.value;
+      const m = monthRef.current.value;
+      const d = dayRef.current.value;
+
       // make sure date is in future
       const date = new Date();
-      date.setFullYear(year);
-      date.setMonth(month - 1);
-      date.setDate(day);
+      date.setFullYear(Number(y));
+      date.setMonth(Number(m) - 1);
+      date.setDate(Number(d));
 
       // this validation is not required
       //   if (date.getTime() <= Date.now()) throw "Date must be in the future";
       const obj = {
-        location,
+        location: loc,
         date,
         topicId: topic,
       };
@@ -105,15 +128,16 @@ const NewLesson: NextPage = () => {
     <UserAllowed allowed={["SECRETARY_GENERAL", "TEACHER"]}>
       <TypographyH1 title="Create a new Lesson" />
       {/* TODO: COULD BE BETTER FROM UX */}
-      <form onSubmit={createNewLesson}>
-        <TypographyH4 title="Location" />
+      <form className="flex flex-col" onSubmit={createNewLesson}>
+        <TypographyH4 title="Location (required)" />
         <Input
+          ref={locationRef}
           type="text"
-          value={location}
-          onChange={(e) => {
-            setLocation(e.target.value);
-          }}
-          placeholder="Where is this lesson going to be held?"
+          //   value={location}
+          //   onChange={(e) => {
+          //     setLocation(e.target.value);
+          //   }}
+          placeholder="Where is this lesson going to be held? (required)"
           required={true}
         />
         <TypographyH4 title="Select a date and time" />
@@ -122,13 +146,14 @@ const NewLesson: NextPage = () => {
           <Input
             type="text"
             id="day"
-            value={day}
+            ref={dayRef}
+            // value={day}
             inputMode="numeric" // for phones
-            onChange={(e) => {
-              const number = Number(e.target.value);
-              if (isNaN(number)) return;
-              setDay(number);
-            }}
+            // onChange={(e) => {
+            //   const number = Number(e.target.value);
+            //   if (isNaN(number)) return;
+            //   setDay(number);
+            // }}
             placeholder="Day"
             required={true}
           />
@@ -136,27 +161,29 @@ const NewLesson: NextPage = () => {
           <Input
             type="text"
             id="day"
-            value={month}
+            ref={monthRef}
+            // value={month}
             inputMode="numeric" // for phones
-            onChange={(e) => {
-              const number = Number(e.target.value);
-              if (isNaN(number)) return;
-              setMonth(number);
-            }}
+            // onChange={(e) => {
+            //   const number = Number(e.target.value);
+            //   if (isNaN(number)) return;
+            //   setMonth(number);
+            // }}
             placeholder="Month"
             required={true}
           />
           <Label htmlFor="year">Year</Label>
           <Input
             type="text"
+            ref={yearRef}
             id="year"
-            value={year}
+            // value={year}
             inputMode="numeric" // for phones
-            onChange={(e) => {
-              const number = Number(e.target.value);
-              if (isNaN(number)) return;
-              setYear(number);
-            }}
+            // onChange={(e) => {
+            //   const number = Number(e.target.value);
+            //   if (isNaN(number)) return;
+            //   setYear(number);
+            // }}
             placeholder="Year"
             required={true}
           />
@@ -186,6 +213,12 @@ const NewLesson: NextPage = () => {
               })}
             </RadioGroup>
           ))}
+        <Link href="/dashboard/edit/topic">
+          <Button variant="link">
+            Create a new topic
+            <Plus className="h-4 w-4" />
+          </Button>
+        </Link>
         <Button
           type="submit"
           variant={

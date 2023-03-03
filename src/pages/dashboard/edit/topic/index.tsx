@@ -12,6 +12,7 @@ import type { NextPage } from "next/types";
 import { type FormEvent, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Plus } from "lucide-react";
 
 const Dashboard: NextPage = () => {
   const { toast } = useToast();
@@ -68,8 +69,8 @@ const Dashboard: NextPage = () => {
   return (
     <UserAllowed allowed={["SECRETARY_GENERAL", "TEACHER"]}>
       <TypographyH1 title="Create a new Topic" />
-      <form onSubmit={createNewTopic}>
-        <TypographyH4 title="Topic name" />
+      <form className="flex flex-col" onSubmit={createNewTopic}>
+        <TypographyH4 title="Topic name (required)" />
         <Input
           type="text"
           onChange={(e) => {
@@ -86,6 +87,11 @@ const Dashboard: NextPage = () => {
           onChange={(e) => setDescription(e.target.value)}
           value={description}
         />
+        <Link href="/dashboard/edit/lesson">
+          <Button variant="link" type="button">
+            Create a new lesson <Plus />
+          </Button>
+        </Link>
         <Button type="submit" variant="default">
           Create new topic
         </Button>

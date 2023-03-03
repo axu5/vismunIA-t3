@@ -64,7 +64,7 @@ const TopicEditor: NextPage = () => {
     return (
       <div>
         <Link href="/dashboard/edit/topic">Go back</Link>
-        <form onSubmit={editMe}>
+        <form className="flex flex-col" onSubmit={editMe}>
           <TypographyH4 title="Topic title" />
           <Input
             value={title}

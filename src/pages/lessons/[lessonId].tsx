@@ -12,9 +12,9 @@ import { createInnerTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
 import Link from "next/link";
-import { ExternalLink, Plus, UsersIcon } from "lucide-react";
+import { Edit, ExternalLink, Plus, UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { signIn, useSession } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { z } from "zod";
 import { useToast } from "@/hooks/ui/use-toast";
 import { Input } from "@/components/ui/Input";
@@ -23,19 +23,54 @@ import TypographyTable from "@/components/ui/TypographyTable";
 import checkRoles from "@/utils/clientCheckRole";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import type { Country, Document, Position } from "@prisma/client";
+import type {
+  Country,
+  Document,
+  Lesson,
+  Position,
+  Topic,
+} from "@prisma/client";
 import UserAllowed from "@/components/UserAllowed";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await getSession(context);
+  if (session === null) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   const { lessonId } = context.query;
-  console.log("lessonId", lessonId);
-  const id = typeof lessonId === "string" ? lessonId : "";
+
+  if (typeof lessonId !== "string") {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
     transformer: superjson, // optional - adds superjson serialization
   });
-  const { topic } = await ssg.lessons.getById.fetch(id);
+  let topic: Topic | null = null;
+  try {
+    const response = await ssg.lessons.getById.fetch(lessonId);
+    topic = response.topic;
+  } catch (e) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   // Fetch data before first page load
   await ssg.countries.getByTopic.prefetch(topic.id);
@@ -44,7 +79,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      lessonId: id,
+      lessonId,
       topicId: topic.id,
     },
   };
@@ -227,10 +262,6 @@ export default function Lessons({
     });
   }
 
-  if (status === "unauthenticated") {
-    void signIn();
-    return <></>;
-  }
   if (
     lessonIsLoading ||
     countriesIsLoading ||
@@ -254,8 +285,10 @@ export default function Lessons({
               className="flex flex-row"
               href={`/dashboard/attendance/${lessonId}`}
             >
-              Take attendance
-              <UsersIcon />
+              <Button variant="link">
+                Take attendance
+                <UsersIcon className="mx-2 h-4 w-4" />
+              </Button>
             </Link>
           )}
           <TypographyH2 title={lessonQueryData.lesson?.location || ""} />
@@ -313,13 +346,21 @@ export default function Lessons({
                 required={true}
               />
               <Button variant="subtle" type="submit">
-                <Plus /> Add a new document
+                Add a new document
+                <Plus className="mx-2 h-4 w-4" />
               </Button>
             </form>
           )}
         </div>
         <div>
           <TypographyH1 title="About the topic" />
+          {isAuthorized && (
+            <Link href={`/dashboard/edit/topic/${lessonQueryData.topic.id}`}>
+              <Button variant="link">
+                Edit the topic <Edit className="mx-2 h-4 w-4" />
+              </Button>
+            </Link>
+          )}
           <TypographyH2 title={lessonQueryData.topic?.title || ""} />
           <TypographyP
             text={lessonQueryData.topic?.description || "No description"}
@@ -404,7 +445,8 @@ export default function Lessons({
                 </div>
               </RadioGroup>
               <Button variant="subtle" type="submit">
-                <Plus /> Add a new country
+                Add a new country
+                <Plus className="mx-2 h-4 w-4" />
               </Button>
             </form>
           )}

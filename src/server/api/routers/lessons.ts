@@ -72,7 +72,7 @@ export const lessonsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // 2 lessons can't exist on the same date
       const { location, date, topicId } = input;
-      const dateStrIdentifier = makeDateStr(date);
+      const dateStrIdentifier = date.toDateString();
       const exists = await ctx.prisma.lesson.findFirst({
         where: {
           dateStr: dateStrIdentifier,
@@ -121,7 +121,7 @@ export const lessonsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // edit
       if (input.data.date) {
-        const dateStr = makeDateStr(input.data.date);
+        const dateStr = input.data.date.toDateString();
         const lesson = await ctx.prisma.lesson.findFirst({
           where: {
             dateStr,
@@ -141,7 +141,3 @@ export const lessonsRouter = createTRPCRouter({
       });
     }),
 });
-
-function makeDateStr(date: Date) {
-  return date.toDateString();
-}
