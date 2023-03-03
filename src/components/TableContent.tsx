@@ -13,6 +13,11 @@ import type { Lesson } from "@prisma/client";
 import { useToast } from "@/hooks/ui/use-toast";
 import { useRouter } from "next/router";
 import TypographyH4 from "./ui/TypographyH4";
+import type { GetServerSidePropsContext } from "next";
+import superjson from "superjson";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { createInnerTRPCContext } from "@/server/api/trpc";
+import { appRouter } from "@/server/api/root";
 
 const months = [
   "January",

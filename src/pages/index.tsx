@@ -7,10 +7,32 @@ import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import TypographyH4 from "@/components/ui/TypographyH4";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "@/server/api/root";
+import { createInnerTRPCContext } from "@/server/api/trpc";
+import superjson from "superjson";
+
+export async function getServerSideProps() {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson, // optional - adds superjson serialization
+  });
+
+  await ssg.lessons.getAll.prefetch("asc");
+  await ssg.topics.getAll.prefetch();
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+  };
+}
 
 const Home: NextPage = () => {
   const router = useRouter();
+  const page = isNaN(Number(router.query.page)) ? 0 : Number(router.query.page);
   const days = [
     "Sunday",
     "Monday",
@@ -21,10 +43,7 @@ const Home: NextPage = () => {
     "Saturday",
   ];
 
-  const page = isNaN(Number(router.query.page)) ? 0 : Number(router.query.page);
-
   const today = new Date().getDay();
-
   // shift array by today
   for (let i = 0; i < today; ++i) {
     const first = days.shift();
@@ -34,21 +53,29 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className="h-screen">
+      <div className="flex h-screen flex-col">
         <TypographyH2 title="MUN Lessons coming up" />
         <TypographyH4 title="Go back or forwards in months" />
-        <Link href={page === 1 ? `/` : `/?page=${page - 1}`}>
-          <Button variant="link">Backward</Button>
-        </Link>
-        <Link href="/">
-          <Button variant="default">Today</Button>
-        </Link>
-        <Link href={page === -1 ? `/` : `/?page=${page + 1}`}>
-          <Button variant="link">
-            Forward
-            <ArrowRight />
-          </Button>
-        </Link>
+        <div className="flex flex-row">
+          <Link
+            className="flex flex-row"
+            href={page === 1 ? `/` : `/?page=${page - 1}`}
+          >
+            <Button variant="link">
+              <ArrowLeft className="h-4 w-4" />
+              Backward
+            </Button>
+          </Link>
+          <Link href="/">
+            <Button variant="default">Today</Button>
+          </Link>
+          <Link href={page === -1 ? `/` : `/?page=${page + 1}`}>
+            <Button variant="link">
+              Forward
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
         <TypographyTable titles={days} rows={TableContent()} />
       </div>
     </>
