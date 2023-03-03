@@ -148,6 +148,30 @@ export const usersRouter = createTRPCRouter({
         },
       });
 
+      // remove their attendance from lessons
+      const lessons = await ctx.prisma.lesson.findMany({
+        where: {
+          id: { in: user.attendance },
+        },
+      });
+
+      // get attendance and delete from users
+      const promises = user.attendance.map((lessonId, i) => {
+        if (lessons[i] == undefined) return;
+        return ctx.prisma.user.update({
+          where: {
+            id: lessonId,
+          },
+          data: {
+            attendance: lessons[i]!.attendance.filter(
+              (lessonId) => lessonId !== input
+            ),
+          },
+        });
+      });
+
+      await Promise.all(promises);
+
       return user;
     }),
   updateRole: protectedProcedureTeacher
