@@ -12,37 +12,51 @@ export default function Attendance() {
   const attendance = api.lessons.getAttendanceData.useMutation({
     onSuccess(data) {
       const { users, lessons } = data;
+
+      const usersAlphabeticalLastName = users.sort((a, b) => {
+        const aLastName = a.name.split(" ")[1]?.toLowerCase();
+        const bLastName = b.name.split(" ")[1]?.toLowerCase();
+
+        if (aLastName == undefined || bLastName == undefined) return 0;
+
+        if (aLastName < bLastName) {
+          return -1;
+        }
+        return 1;
+      });
+
       // make a 2d array of size users.length and lessons.length
       // where the lessons are the columns and users are the rows
       // add 2 to account for header and total count rows and columns
-      const attendanceData = new Array(users.length + 2).fill(0).map((_, i) => {
-        const user = users[i - 2];
-        if (i === 0)
-          return [
-            "",
-            "",
-            ...lessons.map((lesson) => {
-              if (lesson == undefined) return "";
-              return lesson.dateStr;
-            }),
-          ];
-        if (i === 1)
-          return [
-            "",
-            "",
-            ...lessons.map((lesson) => {
-              if (lesson == undefined) return "";
-              return lesson.attendance.length.toString();
-            }),
-          ];
-        if (user === undefined) return [];
-        return [user.name, user.attendance.length.toString()].concat(
-          ...lessons.map((lesson, k) => {
-            return lesson.attendance.includes(user.id).toString();
-          })
-        );
-      });
-      console.table(attendanceData);
+      const attendanceData = new Array(usersAlphabeticalLastName.length + 2)
+        .fill(0)
+        .map((_, i) => {
+          const user = usersAlphabeticalLastName[i - 2];
+          if (i === 0)
+            return [
+              "",
+              "Date",
+              ...lessons.map((lesson) => {
+                if (lesson == undefined) return "";
+                return lesson.dateStr;
+              }),
+            ];
+          if (i === 1)
+            return [
+              "Student Name",
+              "Attendance Count",
+              ...lessons.map((lesson) => {
+                if (lesson == undefined) return "";
+                return lesson.attendance.length.toString();
+              }),
+            ];
+          if (user === undefined) return [];
+          return [user.name, user.attendance.length.toString()].concat(
+            ...lessons.map((lesson, k) => {
+              return lesson.attendance.includes(user.id).toString();
+            })
+          );
+        });
 
       const csv = attendanceData
         .map((row) => {
