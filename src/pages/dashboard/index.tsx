@@ -1,6 +1,8 @@
 import UserAllowed from "@/components/UserAllowed";
 import TypographyH1 from "@/components/ui/TypographyH1";
 import TypographyH3 from "@/components/ui/TypographyH3";
+import { Button } from "@/components/ui/button";
+import { Pointer } from "lucide-react";
 import Link from "next/link";
 import type { NextPage } from "next/types";
 
@@ -25,6 +27,11 @@ const Dashboard: NextPage = () => {
       description: "Edit permissions of students",
       href: "edit/users",
     },
+    {
+      title: "View attendance",
+      description: "View and download the attendance data for all the students",
+      href: "attendance",
+    },
   ];
   return (
     <>
@@ -45,12 +52,12 @@ function ShowContent({ content }: { content: linkType[] }) {
     <ul>
       {content.map((cont) => {
         return (
-          <li
-            className="m-4 rounded bg-slate-300 px-5 pb-2 hover:underline"
-            key={cont.title}
-          >
-            <Link href={`/dashboard/${cont.href}`}>
-              <TypographyH3 className="" title={cont.title} />
+          <li key={cont.title}>
+            <Link
+              className="rounded shadow hover:underline"
+              href={`/dashboard/${cont.href}`}
+            >
+              <TypographyH3 title={cont.title} />
               <p>{cont.description}</p>
             </Link>
           </li>

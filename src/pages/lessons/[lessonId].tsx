@@ -12,7 +12,7 @@ import { createInnerTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
 import Link from "next/link";
-import { Edit, ExternalLink, Plus, UsersIcon } from "lucide-react";
+import { Edit, ExternalLink, Plus, Trash, UsersIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSession, signIn, useSession } from "next-auth/react";
 import { z } from "zod";
@@ -23,13 +23,7 @@ import TypographyTable from "@/components/ui/TypographyTable";
 import checkRoles from "@/utils/clientCheckRole";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import type {
-  Country,
-  Document,
-  Lesson,
-  Position,
-  Topic,
-} from "@prisma/client";
+import type { Country, Document, Position, Topic } from "@prisma/client";
 import UserAllowed from "@/components/UserAllowed";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -202,6 +196,14 @@ export default function Lessons({
       });
     },
   });
+  const documentDeleter = api.documents.delete.useMutation({
+    async onSuccess(document) {
+      toast({
+        title: `Successfully deleted document ${document.name}`,
+      });
+      await utils.documents.getByTopic.invalidate();
+    },
+  });
 
   function handleNewCountry(e: FormEvent) {
     e.preventDefault();
@@ -262,6 +264,12 @@ export default function Lessons({
     });
   }
 
+  function deleteDocument(documentId: string) {
+    return () => {
+      documentDeleter.mutate(documentId);
+    };
+  }
+
   if (
     lessonIsLoading ||
     countriesIsLoading ||
@@ -305,7 +313,7 @@ export default function Lessons({
 
           {userCountry !== null && (
             <TypographyTable
-              titles={[<>Documents</>]}
+              titles={[<>Documents</>, <>Delete</>]}
               rows={
                 userRelatedDocuments.length > 0
                   ? userRelatedDocuments.map(
@@ -317,12 +325,21 @@ export default function Lessons({
                             href={document.uri}
                             target="_blank"
                           >
-                            {document.name} <ExternalLink />
+                            <Button variant="link">
+                              {document.name}
+                              <ExternalLink className="mx-2 h-4 w-4" />
+                            </Button>
                           </Link>,
+                          <Button
+                            onClick={deleteDocument(document.id)}
+                            variant="destructive"
+                          >
+                            <Trash className="mx-2 h-4 w-4" />
+                          </Button>,
                         ];
                       }
                     )
-                  : [[<>No documents found for your country</>]]
+                  : [[<>No documents found for your country</>, <></>]]
               }
             />
           )}

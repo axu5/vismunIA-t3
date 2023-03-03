@@ -82,4 +82,54 @@ export const documentsRouter = createTRPCRouter({
 
       return document;
     }),
+
+  delete: protectedProcedure
+    .input(z.string().cuid())
+    .mutation(async ({ ctx, input }) => {
+      const documentId = input;
+
+      const document = await ctx.prisma.document.findUnique({
+        where: {
+          id: documentId,
+        },
+      });
+
+      if (document === null) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Document could not be found",
+        });
+      }
+
+      const userId = ctx.session.user.id;
+
+      // make sure user is a part of the country which document belongs to
+      const country = await ctx.prisma.country.findUnique({
+        where: {
+          id: document.countryId,
+        },
+      });
+
+      if (country === null) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Country could not be found",
+        });
+      }
+
+      if (!country.studentIds.includes(userId)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a member of that country",
+        });
+      }
+
+      await ctx.prisma.document.delete({
+        where: {
+          id: documentId,
+        },
+      });
+
+      return document;
+    }),
 });

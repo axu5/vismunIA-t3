@@ -3,8 +3,12 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedureSecretaryGeneral,
+  protectedProcedureTeacher,
   publicProcedure,
 } from "../trpc";
+import isBefore from "date-fns/isBefore";
+import isAfter from "date-fns/isAfter";
+import { User } from "@prisma/client";
 
 export const lessonsRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -139,5 +143,64 @@ export const lessonsRouter = createTRPCRouter({
         where: { id: input.id },
         data: input.data,
       });
+    }),
+  getAttendanceData: protectedProcedureTeacher
+    .input(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { startDate, endDate } = input;
+
+      // lessons will be columns
+      const lessons = await ctx.prisma.lesson.findMany({});
+
+      // get start and end index based on the query
+
+      let start = 0;
+      let end = lessons.length;
+      while (
+        lessons[start] != undefined &&
+        isBefore(lessons[start]!.date, startDate)
+      ) {
+        start++;
+      }
+
+      while (
+        lessons[end] != undefined &&
+        end > start &&
+        isAfter(lessons[end]!.date, endDate)
+      ) {
+        end--;
+      }
+
+      const slicedLessons = lessons.slice(start, end);
+      const userIds: Set<string> = new Set();
+
+      for (let i = 0; i < lessons.length; ++i) {
+        const lesson = lessons[i];
+        if (lesson == undefined) break;
+        for (let j = 0; j < lesson.attendance.length; ++j) {
+          const studentId = lesson.attendance[j];
+          if (!studentId) break;
+          userIds.add(studentId);
+        }
+      }
+
+      // get users as they will be rows to our table
+      const users = await ctx.prisma.user.findMany({
+        where: {
+          id: {
+            in: Array.from(userIds),
+          },
+        },
+      });
+
+      return {
+        lessons: slicedLessons,
+        users: users,
+      };
     }),
 });

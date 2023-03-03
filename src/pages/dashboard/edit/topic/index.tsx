@@ -87,11 +87,11 @@ const Dashboard: NextPage = () => {
           onChange={(e) => setDescription(e.target.value)}
           value={description}
         />
-        <Link href="/dashboard/edit/lesson">
+        {/* <Link href="/dashboard/edit/lesson">
           <Button variant="link" type="button">
             Create a new lesson <Plus />
           </Button>
-        </Link>
+        </Link> */}
         <Button type="submit" variant="default">
           Create new topic
         </Button>
