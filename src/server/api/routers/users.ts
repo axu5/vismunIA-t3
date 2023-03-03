@@ -157,13 +157,14 @@ export const usersRouter = createTRPCRouter({
 
       // get attendance and delete from users
       const promises = user.attendance.map((lessonId, i) => {
-        if (lessons[i] == undefined) return;
+        const lesson = lessons[i];
+        if (lesson == undefined) return;
         return ctx.prisma.user.update({
           where: {
             id: lessonId,
           },
           data: {
-            attendance: lessons[i]!.attendance.filter(
+            attendance: lesson.attendance.filter(
               (lessonId) => lessonId !== input
             ),
           },

@@ -12,9 +12,9 @@ import { createInnerTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
 import Link from "next/link";
-import { Edit, ExternalLink, Plus, Trash, UsersIcon, X } from "lucide-react";
+import { Edit, ExternalLink, Plus, Trash, UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getSession, signIn, useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { z } from "zod";
 import { useToast } from "@/hooks/ui/use-toast";
 import { Input } from "@/components/ui/Input";
@@ -331,6 +331,7 @@ export default function Lessons({
                             </Button>
                           </Link>,
                           <Button
+                            key={i + 1}
                             onClick={deleteDocument(document.id)}
                             variant="destructive"
                           >

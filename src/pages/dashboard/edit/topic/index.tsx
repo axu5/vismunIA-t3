@@ -12,7 +12,6 @@ import type { NextPage } from "next/types";
 import { type FormEvent, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
 
 const Dashboard: NextPage = () => {
   const { toast } = useToast();

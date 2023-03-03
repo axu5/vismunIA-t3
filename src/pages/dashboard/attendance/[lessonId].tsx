@@ -36,7 +36,7 @@ export default function Attendance({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: lessons, isLoading: isLoadingLessons } =
     api.lessons.getById.useQuery(lessonId);
-  const [localAttedance, setLocalAttendance] = useState<Map<string, boolean>>(
+  const [localAttendance, setLocalAttendance] = useState<Map<string, boolean>>(
     new Map()
   );
   const { data: students, isLoading: isLoadingStudents } =
@@ -76,8 +76,8 @@ export default function Attendance({
             void toggleAttendance(student)();
           }}
           variant="ghost"
-          className={localAttedance.get(student.id) ? "bg-green-300" : ""}
-          disabled={localAttedance.get(student.id)}
+          className={localAttendance.get(student.id) ? "bg-green-300" : ""}
+          disabled={localAttendance.get(student.id)}
         >
           Present
         </Button>,
@@ -87,14 +87,14 @@ export default function Attendance({
             void toggleAttendance(student)();
           }}
           variant="ghost"
-          className={localAttedance.get(student.id) ? "" : "bg-red-300"}
-          disabled={!localAttedance.get(student.id)}
+          className={localAttendance.get(student.id) ? "" : "bg-red-300"}
+          disabled={!localAttendance.get(student.id)}
         >
           Absent
         </Button>,
       ];
     });
-  }, [students, attendance, attendanceMutator, lessonId]);
+  }, [students, attendance, attendanceMutator, lessonId, localAttendance]);
 
   if (
     isLoadingLessons ||

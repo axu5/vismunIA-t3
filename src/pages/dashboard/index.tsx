@@ -1,8 +1,6 @@
 import UserAllowed from "@/components/UserAllowed";
 import TypographyH1 from "@/components/ui/TypographyH1";
 import TypographyH3 from "@/components/ui/TypographyH3";
-import { Button } from "@/components/ui/button";
-import { Pointer } from "lucide-react";
 import Link from "next/link";
 import type { NextPage } from "next/types";
 

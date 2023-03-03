@@ -8,7 +8,6 @@ import {
 } from "../trpc";
 import isBefore from "date-fns/isBefore";
 import isAfter from "date-fns/isAfter";
-import { User } from "@prisma/client";
 
 export const lessonsRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -115,13 +114,14 @@ export const lessonsRouter = createTRPCRouter({
       });
       // get attendance and delete from users
       const promises = lesson.attendance.map((studentId, i) => {
-        if (users[i] == undefined) return;
+        const user = users[i];
+        if (user == undefined) return;
         return ctx.prisma.user.update({
           where: {
             id: studentId,
           },
           data: {
-            attendance: users[i]!.attendance.filter(
+            attendance: user.attendance.filter(
               (lessonId) => lessonId !== input
             ),
           },
@@ -184,8 +184,7 @@ export const lessonsRouter = createTRPCRouter({
       let start = 0;
       let end = lessons.length;
       while (
-        lessons[start] != undefined &&
-        isBefore(lessons[start]!.date, startDate)
+        isBefore((lessons[start] || { date: new Date() }).date, startDate)
       ) {
         start++;
       }
@@ -193,7 +192,7 @@ export const lessonsRouter = createTRPCRouter({
       while (
         lessons[end] != undefined &&
         end > start &&
-        isAfter(lessons[end]!.date, endDate)
+        isAfter((lessons[end] || { date: new Date() }).date, endDate)
       ) {
         end--;
       }

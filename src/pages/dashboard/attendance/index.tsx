@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/ui/use-toast";
 import { api } from "@/utils/api";
 import isBefore from "date-fns/isBefore";
 import { FileDown } from "lucide-react";
-import { FormEvent, useRef } from "react";
+import { type FormEvent, useRef } from "react";
 
 export default function Attendance() {
   const attendance = api.lessons.getAttendanceData.useMutation({
