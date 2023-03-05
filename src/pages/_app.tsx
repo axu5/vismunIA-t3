@@ -30,7 +30,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
         content="MUN for Verdala is a place to gather meeting information and previous session data, see all the lessons that the VIS MUN team have made!"
       />
       <meta name="robots" content="index, follow" />
-      <link rel="icon" type="image/con" href="/favicon.ico"></link>
+      <link rel="icon" type="image/icon" href="/favicon.ico"></link>
     </Head>
     <Navbar />
     <main className="mx-auto w-4/5">
