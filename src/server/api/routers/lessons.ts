@@ -188,7 +188,10 @@ export const lessonsRouter = createTRPCRouter({
       let start = 0;
       let end = lessons.length;
       while (
-        isBefore((lessons[start] || { date: new Date() }).date, startDate)
+        isBefore(
+          (lessons[start] || { timestamp: new Date() }).timestamp,
+          startDate
+        )
       ) {
         start++;
       }
@@ -196,7 +199,7 @@ export const lessonsRouter = createTRPCRouter({
       while (
         lessons[end] != undefined &&
         end > start &&
-        isAfter((lessons[end] || { date: new Date() }).date, endDate)
+        isAfter((lessons[end] || { timestamp: new Date() }).timestamp, endDate)
       ) {
         end--;
       }

@@ -356,12 +356,11 @@ export default function Lessons({
                             variant="destructive"
                             onClick={deleteDocument(document.id)}
                           >
-                            Delete
+                            <Trash className="h-4 w-4" />
                           </Button>,
                         ];
                       }
                     )
-                  : [[<>No documents found for your country</>, <></>]]
                   : [[<>No documents found for your country</>, <></>]]
               }
             />

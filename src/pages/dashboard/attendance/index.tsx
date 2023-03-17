@@ -52,7 +52,7 @@ export default function Attendance() {
             ];
           if (user === undefined) return [];
           return [user.name, user.attendance.length.toString()].concat(
-            ...lessons.map((lesson, k) => {
+            ...lessons.map((lesson) => {
               return lesson.attendance.includes(user.id).toString();
             })
           );
