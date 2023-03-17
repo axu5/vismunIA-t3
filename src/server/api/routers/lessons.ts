@@ -12,7 +12,7 @@ export const lessonsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.prisma.lesson.findMany({
         orderBy: {
-          date: input,
+          timestamp: input,
         },
       });
     }),
@@ -59,7 +59,7 @@ export const lessonsRouter = createTRPCRouter({
          * Not mandatory as default behaviour is
          * 1 week plus from last session's date
          */
-        date: z.date(),
+        timestamp: z.date(),
         /*
          * Topic is mandatory as it cannot be
          * auto generate. Needs to be validated
@@ -71,8 +71,8 @@ export const lessonsRouter = createTRPCRouter({
     // TODO: functionality
     .mutation(async ({ ctx, input }) => {
       // 2 lessons can't exist on the same date
-      const { location, date, topicId } = input;
-      const dateStrIdentifier = date.toDateString();
+      const { location, timestamp, topicId } = input;
+      const dateStrIdentifier = timestamp.toDateString();
       const exists = await ctx.prisma.lesson.findFirst({
         where: {
           dateStr: dateStrIdentifier,
@@ -87,7 +87,7 @@ export const lessonsRouter = createTRPCRouter({
       const document = await ctx.prisma.lesson.create({
         data: {
           location,
-          date,
+          timestamp,
           dateStr: dateStrIdentifier,
           topicId,
         },
@@ -107,21 +107,25 @@ export const lessonsRouter = createTRPCRouter({
       return lesson;
     }),
 
+  /**
+   * @description Edit a given lesson is a restricted procedure to only
+   * secretary generals or teachers.
+   */
   edit: protectedProcedureSecretaryGeneral
     .input(
       z.object({
         id: z.string().cuid(),
         data: z.object({
           location: z.string(),
-          date: z.date(),
+          timestamp: z.date(),
           topicId: z.string().cuid(),
         }),
       })
     )
     .mutation(async ({ ctx, input }) => {
       // edit
-      if (input.data.date) {
-        const dateStr = input.data.date.toDateString();
+      if (input.data.timestamp) {
+        const dateStr = input.data.timestamp.toDateString();
         const lesson = await ctx.prisma.lesson.findFirst({
           where: {
             dateStr,

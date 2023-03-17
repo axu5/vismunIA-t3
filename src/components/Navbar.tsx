@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import TypographyH1 from "@/components/ui/TypographyH1";
 import { useSession } from "next-auth/react";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { useMemo } from "react";
 import * as React from "react";
 import TypographyH3 from "./ui/TypographyH3";
@@ -35,10 +34,6 @@ const Navbar = () => {
           ) : (
             <div className="flex flex-row">
               <div className="flex flex-row">
-                {/* <Avatar className="">
-                  <AvatarImage src={session.user.image || ""} />
-                  <AvatarFallback>{session.user.name}</AvatarFallback>
-                </Avatar> */}
                 <TypographyH3
                   className=""
                   title={`Welcome ${session.user.name as string}`}

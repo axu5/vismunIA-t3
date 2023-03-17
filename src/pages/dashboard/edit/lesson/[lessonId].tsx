@@ -1,27 +1,58 @@
-import type { NextPage } from "next/types";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next/types";
 import { useRouter } from "next/router";
 import { api } from "@/utils/api";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
 import TypographyH4 from "@/components/ui/TypographyH4";
 import { Button } from "@/components/ui/button";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/ui/use-toast";
 import type { Lesson, Topic } from "@prisma/client";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import Loading from "@/components/Loading";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "@/server/api/root";
+import { createInnerTRPCContext } from "@/server/api/trpc";
+import superjson from "superjson";
+import DatePicker from "@/components/DatePicker";
 
-const TopicEditor: NextPage = () => {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { lessonId } = context.query;
+  const _lessonId = typeof lessonId === "string" ? lessonId : "";
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson, // optional - adds superjson serialization
+  });
+
+  await ssg.lessons.getById.prefetch(_lessonId);
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      lessonId: _lessonId,
+    },
+  };
+}
+
+const TopicEditor: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ lessonId }) => {
   const { toast } = useToast();
   const [lesson, setLesson] = useState<Lesson>();
   const [topic, setTopic] = useState<Topic>();
+  const dayRef = useRef<HTMLInputElement>(null);
+  const monthRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+  const lessonLocationRef = useRef<HTMLInputElement>(null);
   const [topicId, setTopicId] = useState("");
   const router = useRouter();
-  const { lessonId } = router.query;
-  if (!router.isReady) return <Loading />;
-  const _lessonId = typeof lessonId === "string" ? lessonId : "";
-  const lessonQuery = api.lessons.getById.useQuery(_lessonId, {
+  const lessonQuery = api.lessons.getById.useQuery(lessonId, {
     onSuccess({ lesson: l, topic: t }) {
       setLesson(l);
       setTopic(t);
@@ -35,6 +66,20 @@ const TopicEditor: NextPage = () => {
       });
     },
   });
+  useEffect(() => {
+    if (
+      !(
+        yearRef.current == undefined ||
+        monthRef.current == undefined ||
+        dayRef.current == undefined ||
+        lesson == undefined
+      )
+    ) {
+      dayRef.current.value = lesson.timestamp.getDate().toString();
+      monthRef.current.value = (lesson.timestamp.getMonth() + 1).toString();
+      yearRef.current.value = lesson.timestamp.getFullYear().toString();
+    }
+  }, [lesson]);
   const topicsQuery = api.topics.getAll.useQuery();
   const deleter = api.lessons.delete.useMutation({
     async onSuccess() {
@@ -52,7 +97,7 @@ const TopicEditor: NextPage = () => {
   if (!router.isReady || lessonQuery.isLoading || topicsQuery.isLoading)
     return <Loading />;
   function deleteMe() {
-    deleter.mutate(_lessonId);
+    deleter.mutate(lessonId);
   }
 
   function editMe(e: FormEvent<HTMLFormElement>) {
@@ -65,12 +110,23 @@ const TopicEditor: NextPage = () => {
       });
       return;
     }
+    if (
+      lessonLocationRef.current === null ||
+      yearRef.current == undefined ||
+      monthRef.current == undefined ||
+      dayRef.current == undefined
+    )
+      return;
+    const timestamp = new Date();
+    timestamp.setFullYear(Number(yearRef.current.value));
+    timestamp.setMonth(Number(monthRef.current.value) - 1);
+    timestamp.setDate(Number(dayRef.current.value));
     // Get new title
     editor.mutate({
       id: lesson.id,
       data: {
-        location: lesson.location,
-        date: lesson.date,
+        location: lessonLocationRef.current.value,
+        timestamp,
         topicId,
       },
     });
@@ -86,30 +142,18 @@ const TopicEditor: NextPage = () => {
         <form onSubmit={editMe}>
           <TypographyH4 title="Lesson Location" />
           <Input
+            ref={lessonLocationRef}
             value={lesson.location}
             type="text"
             placeholder="Topic title"
-            onChange={(e) =>
-              setLesson((prev) => {
-                if (prev === undefined) return lessonQuery.data.lesson;
-                return { ...prev, location: e.target.value };
-              })
-            }
+            // onChange={(e) =>
+            //   setLesson((prev) => {
+            //     if (prev === undefined) return lessonQuery.data.lesson;
+            //     return { ...prev, location: e.target.value };
+            //   })
+            // }
           />
-          <TypographyH4 title="Lesson date" />
-          <Input
-            value={`${lesson.date.getFullYear()}-${
-              lesson.date.getMonth() + 1
-            }-${lesson.date.getDate()}`}
-            type="text"
-            placeholder="Topic title"
-            onChange={(e) =>
-              setLesson((prev) => {
-                if (prev === undefined) return lessonQuery.data.lesson;
-                return { ...prev, date: new Date(e.target.value) };
-              })
-            }
-          />
+          <DatePicker dayRef={dayRef} monthRef={monthRef} yearRef={yearRef} />
           <TypographyH4 title="Lesson topic" />
           {topicsQuery.isSuccess &&
             (topicsQuery.data.length === 0 ? (

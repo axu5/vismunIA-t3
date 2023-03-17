@@ -48,7 +48,7 @@ model Country {
 model Lesson {
     id            String       @id  @default(cuid())
     location      String
-    date          DateTime
+    timestamp     DateTime
     // Only allow one lesson per day
     dateStr       String       @unique
     // Attendance in userId array
@@ -85,7 +85,7 @@ model User {
     // Lesson id's for attendance
     attendance    String[]
     
-    // Next Auth things
+    // Next Auth requirements
     emailVerified DateTime?
     accounts      Account[]
     sessions      Session[]

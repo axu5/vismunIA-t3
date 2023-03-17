@@ -91,6 +91,8 @@ export default function Lessons({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session, status } = useSession();
   const [position, setPosition] = useState<Position>("NEUTRAL");
+  // Client side memoized check.
+  // TODO: Abstract away as UserAllowed Component
   const isAuthorized = useMemo(() => {
     const user = session?.user;
     if (!user) return false;
@@ -202,6 +204,20 @@ export default function Lessons({
       });
     },
   });
+  const documentDeleter = api.documents.deleteById.useMutation({
+    async onSuccess(doc) {
+      toast({
+        title: `Deleted document "${doc.name}"`,
+      });
+      await utils.documents.invalidate();
+    },
+    onError() {
+      toast({
+        title: "Could not delete the document",
+        variant: "destructive",
+      });
+    },
+  });
 
   function handleNewCountry(e: FormEvent) {
     e.preventDefault();
@@ -262,6 +278,12 @@ export default function Lessons({
     });
   }
 
+  function deleteDocument(documentId: string) {
+    return () => {
+      documentDeleter.mutate(documentId);
+    };
+  }
+
   if (
     lessonIsLoading ||
     countriesIsLoading ||
@@ -280,6 +302,18 @@ export default function Lessons({
       <div className="flex flex-row justify-around">
         <div className="flex flex-col">
           <TypographyH1 title="About the lesson" />
+          {session.user.role === "SECRETARY_GENERAL" ||
+            (session.user.role === "TEACHER" && (
+              <Link
+                className="flex flex-row"
+                href={`/dashboard/edit/lesson/${lessonId}`}
+              >
+                <Button variant="link">
+                  Edit the lesson
+                  <Edit className="mx-2 h-4 w-4" />
+                </Button>
+              </Link>
+            ))}
           {session.user.role === "TEACHER" && (
             <Link
               className="flex flex-row"
@@ -293,7 +327,7 @@ export default function Lessons({
           )}
           <TypographyH2 title={lessonQueryData.lesson?.location || ""} />
           <TypographyP
-            text={lessonQueryData.lesson?.date.toDateString() || ""}
+            text={lessonQueryData.lesson?.timestamp.toDateString() || ""}
           />
           <TypographyP
             text={
@@ -305,7 +339,7 @@ export default function Lessons({
 
           {userCountry !== null && (
             <TypographyTable
-              titles={[<>Documents</>]}
+              titles={[<>Documents</>, <>Delete</>]}
               rows={
                 userRelatedDocuments.length > 0
                   ? userRelatedDocuments.map(
@@ -317,12 +351,21 @@ export default function Lessons({
                             href={document.uri}
                             target="_blank"
                           >
-                            {document.name} <ExternalLink />
+                            {document.name}
+                            <ExternalLink className="mx-2 h-4 w-4" />
                           </Link>,
+                          <Button
+                            className="flex flex-row"
+                            key={i + 1}
+                            variant="destructive"
+                            onClick={deleteDocument(document.id)}
+                          >
+                            Delete
+                          </Button>,
                         ];
                       }
                     )
-                  : [[<>No documents found for your country</>]]
+                  : [[<>No documents found for your country</>, <></>]]
               }
             />
           )}

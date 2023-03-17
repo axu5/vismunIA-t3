@@ -3,6 +3,10 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const documentsRouter = createTRPCRouter({
+  /**
+   * @param {String} countryId
+   * @returns Returns all documents associated with a given country
+   */
   getByCountry: publicProcedure
     .input(z.string().cuid())
     .query(async ({ ctx, input }) => {
@@ -14,6 +18,11 @@ export const documentsRouter = createTRPCRouter({
 
       return documents;
     }),
+
+  /**
+   * @param {String} topicId
+   * @returns Returns all documents that were found to be associated with this topic
+   */
   getByTopic: publicProcedure
     .input(z.string().cuid())
     .query(async ({ ctx, input }) => {
@@ -25,6 +34,11 @@ export const documentsRouter = createTRPCRouter({
 
       return documents;
     }),
+
+  /**
+   * Get a document by its ID
+   * @param {String} documentId Fetch a document from the database based on this CUID
+   */
   getById: publicProcedure
     .input(z.string().cuid())
     .query(async ({ ctx, input }) => {
@@ -37,6 +51,15 @@ export const documentsRouter = createTRPCRouter({
       return document;
     }),
 
+  /**
+   * @description Creating a document can be done by any logged in user. However: The user must be a
+   * member of the country in which they wish to make a document. FIX: could add functionality
+   * to ignore this for secretary generals and teachers.
+   * @param {String} countryId The CUID of the country this document is associated with
+   * @param {String} topicId The CUID of the topic this document is associated with (FIX: could be derived through country)
+   * @param {String} uri The URI of the document (example: a google docs link)
+   * @param {String} name The alias of the document (example: Opening speech)
+   */
   create: protectedProcedure
     .input(
       z.object({
@@ -79,6 +102,29 @@ export const documentsRouter = createTRPCRouter({
           name: input.name,
         },
       });
+
+      return document;
+    }),
+
+  deleteById: protectedProcedure
+    .input(z.string().cuid())
+    .mutation(async ({ ctx, input }) => {
+      // get document associated country
+      // TODO: In the future you could check if
+      // user is associated with the country.
+      // As this is a small scale project
+      // this is a potential risk I am willing
+      // to take to save DB queries.
+      const document = await ctx.prisma.document.delete({
+        where: {
+          id: input,
+        },
+      });
+      if (document == null) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+      }
 
       return document;
     }),

@@ -13,11 +13,6 @@ import type { Lesson } from "@prisma/client";
 import { useToast } from "@/hooks/ui/use-toast";
 import { useRouter } from "next/router";
 import TypographyH4 from "./ui/TypographyH4";
-import type { GetServerSidePropsContext } from "next";
-import superjson from "superjson";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { createInnerTRPCContext } from "@/server/api/trpc";
-import { appRouter } from "@/server/api/root";
 
 const months = [
   "January",
@@ -45,7 +40,7 @@ export default function TableContent() {
     async onSuccess(data) {
       await apiContext.lessons.invalidate();
       toast({
-        title: `Deleted lesson on ${data.date.toDateString()}`,
+        title: `Deleted lesson on ${data.timestamp.toDateString()}`,
         description: "Successfully deleted the lesson",
       });
     },
@@ -86,7 +81,7 @@ export default function TableContent() {
   });
   let nextLessonIndex = 0;
   while (
-    isBefore(lessons[nextLessonIndex]?.date || 0, start) &&
+    isBefore(lessons[nextLessonIndex]?.timestamp || 0, start) &&
     nextLessonIndex < lessons.length
   ) {
     nextLessonIndex++;
@@ -121,7 +116,7 @@ export default function TableContent() {
       const nextLesson = lessons[nextLessonIndex];
 
       if (nextLesson === undefined) return defaultBehaviour;
-      if (!isSameDay(nextLesson.date, current)) return defaultBehaviour;
+      if (!isSameDay(nextLesson.timestamp, current)) return defaultBehaviour;
       nextLessonIndex++;
 
       const topic = topicsQuery.data.find(

@@ -14,6 +14,7 @@ import type { NextPage } from "next/types";
 import { type FormEvent, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { Plus } from "lucide-react";
+import DatePicker from "@/components/DatePicker";
 
 const NewLesson: NextPage = () => {
   const { toast } = useToast();
@@ -102,16 +103,16 @@ const NewLesson: NextPage = () => {
       const d = dayRef.current.value;
 
       // make sure date is in future
-      const date = new Date();
-      date.setFullYear(Number(y));
-      date.setMonth(Number(m) - 1);
-      date.setDate(Number(d));
+      const timestamp = new Date();
+      timestamp.setFullYear(Number(y));
+      timestamp.setMonth(Number(m) - 1);
+      timestamp.setDate(Number(d));
 
       // this validation is not required
       //   if (date.getTime() <= Date.now()) throw "Date must be in the future";
       const obj = {
         location: loc,
-        date,
+        timestamp,
         topicId: topic,
       };
       creator.mutate(obj);
@@ -140,7 +141,7 @@ const NewLesson: NextPage = () => {
           placeholder="Where is this lesson going to be held? (required)"
           required={true}
         />
-        <TypographyH4 title="Select a date and time" />
+        {/* <TypographyH4 title="Select a date and time" />
         <div>
           <Label htmlFor="day">Day</Label>
           <Input
@@ -186,8 +187,10 @@ const NewLesson: NextPage = () => {
             // }}
             placeholder="Year"
             required={true}
-          />
-        </div>
+            />
+            </div>
+          */}
+        <DatePicker dayRef={dayRef} monthRef={monthRef} yearRef={yearRef} />
         <TypographyH4 title="Select the topic this relates to" />
         {allTopics.isSuccess &&
           (allTopics.data.length === 0 ? (
