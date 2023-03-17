@@ -14,7 +14,7 @@ import superjson from "superjson";
 import Link from "next/link";
 import { Edit, ExternalLink, Plus, UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getSession, signIn, useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { z } from "zod";
 import { useToast } from "@/hooks/ui/use-toast";
 import { Input } from "@/components/ui/Input";
@@ -23,13 +23,7 @@ import TypographyTable from "@/components/ui/TypographyTable";
 import checkRoles from "@/utils/clientCheckRole";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import type {
-  Country,
-  Document,
-  Lesson,
-  Position,
-  Topic,
-} from "@prisma/client";
+import type { Country, Document, Position, Topic } from "@prisma/client";
 import UserAllowed from "@/components/UserAllowed";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
