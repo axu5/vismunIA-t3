@@ -12,7 +12,7 @@ import { createInnerTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
 import Link from "next/link";
-import { Edit, ExternalLink, Plus, UsersIcon } from "lucide-react";
+import { Edit, ExternalLink, Plus, Trash, UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSession, useSession } from "next-auth/react";
 import { z } from "zod";
@@ -345,8 +345,10 @@ export default function Lessons({
                             href={document.uri}
                             target="_blank"
                           >
-                            {document.name}
-                            <ExternalLink className="mx-2 h-4 w-4" />
+                            <Button variant="link">
+                              {document.name}
+                              <ExternalLink className="mx-2 h-4 w-4" />
+                            </Button>
                           </Link>,
                           <Button
                             className="flex flex-row"
@@ -359,6 +361,7 @@ export default function Lessons({
                         ];
                       }
                     )
+                  : [[<>No documents found for your country</>, <></>]]
                   : [[<>No documents found for your country</>, <></>]]
               }
             />

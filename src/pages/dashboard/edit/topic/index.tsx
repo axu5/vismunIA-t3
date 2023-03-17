@@ -12,7 +12,6 @@ import type { NextPage } from "next/types";
 import { type FormEvent, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
 
 const Dashboard: NextPage = () => {
   const { toast } = useToast();
@@ -87,11 +86,11 @@ const Dashboard: NextPage = () => {
           onChange={(e) => setDescription(e.target.value)}
           value={description}
         />
-        <Link href="/dashboard/edit/lesson">
+        {/* <Link href="/dashboard/edit/lesson">
           <Button variant="link" type="button">
             Create a new lesson <Plus />
           </Button>
-        </Link>
+        </Link> */}
         <Button type="submit" variant="default">
           Create new topic
         </Button>
