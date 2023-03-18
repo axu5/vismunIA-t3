@@ -83,7 +83,7 @@ model User {
     image         String?
     role          UserRole      @default(STUDENT)
     // Lesson id's for attendance
-    attendance    String[]
+    // attendance    String[]
     
     // Next Auth requirements
     emailVerified DateTime?

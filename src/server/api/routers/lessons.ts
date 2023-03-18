@@ -106,32 +106,6 @@ export const lessonsRouter = createTRPCRouter({
           id: input,
         },
       });
-
-      // Get users that were a part of lesson.attendance
-      const users = await ctx.prisma.user.findMany({
-        where: {
-          id: { in: lesson.attendance },
-        },
-      });
-      // Delete attendance data from users for the deleted lesson
-      const promises = users.map((user) => {
-        return ctx.prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            // Map attendance data to be all previous data
-            // except for the lesson being deleted
-            attendance: user.attendance.filter(
-              (lessonId) => lessonId !== input
-            ),
-          },
-        });
-      });
-
-      // Parallel processing of database requests
-      await Promise.all(promises);
-
       return lesson;
     }),
 
@@ -182,11 +156,14 @@ export const lessonsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { startDate, endDate } = input;
 
-      // lessons will be columns
-      const lessons = await ctx.prisma.lesson.findMany({});
+      // lessons will be columns, get them in chronological order
+      const lessons = await ctx.prisma.lesson.findMany({
+        orderBy: {
+          timestamp: "asc",
+        },
+      });
 
       // get start and end index based on the query
-
       let start = 0;
       let end = lessons.length;
       while (
@@ -207,6 +184,7 @@ export const lessonsRouter = createTRPCRouter({
       }
 
       const slicedLessons = lessons.slice(start, end);
+      // Use set to handle duplicates
       const userIds: Set<string> = new Set();
 
       for (let i = 0; i < lessons.length; ++i) {

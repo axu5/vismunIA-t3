@@ -19,17 +19,14 @@ export default function Attendance() {
 
         if (aLastName == undefined || bLastName == undefined) return 0;
 
-        if (aLastName < bLastName) {
-          return -1;
-        }
-        return 1;
+        return aLastName < bLastName ? -1 : 1;
       });
 
       // make a 2d array of size users.length and lessons.length
       // where the lessons are the columns and users are the rows
       // add 2 to account for header and total count rows and columns
       const attendanceData = new Array(usersAlphabeticalLastName.length + 2)
-        .fill(0)
+        .fill(null)
         .map((_, i) => {
           const user = usersAlphabeticalLastName[i - 2];
           if (i === 0)
@@ -53,7 +50,10 @@ export default function Attendance() {
           if (user === undefined) return [];
           return [user.name, `=SUM($C${i + 3}: $ZZ${i + 3})`].concat(
             ...lessons.map((lesson) => {
-              return lesson.attendance.includes(user.id).toString();
+              return lesson.attendance
+                .includes(user.id)
+                .toString()
+                .toUpperCase();
             })
           );
         });
