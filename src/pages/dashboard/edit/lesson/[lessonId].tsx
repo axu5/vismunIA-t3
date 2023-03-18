@@ -65,6 +65,7 @@ const TopicEditor: NextPage<
         variant: "destructive",
       });
     },
+    refetchOnWindowFocus: false,
   });
   useEffect(() => {
     if (
@@ -82,7 +83,9 @@ const TopicEditor: NextPage<
       lessonLocationRef.current.value = lesson.location;
     }
   }, [lesson]);
-  const topicsQuery = api.topics.getAll.useQuery();
+  const topicsQuery = api.topics.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
   const deleter = api.lessons.delete.useMutation({
     async onSuccess() {
       await router.push("/dashboard/edit/lesson");
