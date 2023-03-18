@@ -48,7 +48,7 @@ export default function Attendance() {
               }),
             ];
           if (user === undefined) return [];
-          return [user.name, `=SUM($C${i + 3}: $ZZ${i + 3})`].concat(
+          return [user.name, ""].concat(
             ...lessons.map((lesson) => {
               return lesson.attendance
                 .includes(user.id)
@@ -58,7 +58,15 @@ export default function Attendance() {
           );
         });
 
-      const csv = attendanceData
+      // Post processing to calculate student attendance
+      const processedAttendanceData = attendanceData.map((row, rowIdx) => {
+        if (rowIdx <= 1) return row;
+        const attendance = row.slice(2, row.length);
+        row[1] = attendance.filter((x) => x == "TRUE").length.toString();
+        return row;
+      });
+
+      const csv = processedAttendanceData
         .map((row) => {
           return row.join(",");
         })
