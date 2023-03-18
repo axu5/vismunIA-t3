@@ -71,7 +71,6 @@ export default function Attendance({
       .sort((a, b) => {
         const aLastName = a.name.split(/ +/g)[1] || "";
         const bLastName = b.name.split(/ +/g)[1] || "";
-        console.log(aLastName, bLastName);
         return aLastName < bLastName ? -1 : 1;
       })
       .map((student) => {
