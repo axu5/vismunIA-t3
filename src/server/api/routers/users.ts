@@ -78,16 +78,6 @@ export const usersRouter = createTRPCRouter({
 
       if (!input.present) {
         // update user to be absent
-        await ctx.prisma.user.update({
-          where: {
-            id: input.userId,
-          },
-          data: {
-            attendance: user.attendance.filter(
-              (lessonId) => lessonId !== input.lessonId
-            ),
-          },
-        });
         await ctx.prisma.lesson.update({
           where: {
             id: input.lessonId,
@@ -99,14 +89,6 @@ export const usersRouter = createTRPCRouter({
           },
         });
       } else {
-        await ctx.prisma.user.update({
-          where: {
-            id: input.userId,
-          },
-          data: {
-            attendance: user.attendance.concat(input.lessonId),
-          },
-        });
         await ctx.prisma.lesson.update({
           where: {
             id: input.lessonId,
@@ -151,22 +133,19 @@ export const usersRouter = createTRPCRouter({
       // remove their attendance from lessons
       const lessons = await ctx.prisma.lesson.findMany({
         where: {
-          id: { in: user.attendance },
+          attendance: {
+            hasSome: user.id,
+          },
         },
       });
 
-      // get attendance and delete from users
-      const promises = user.attendance.map((lessonId, i) => {
-        const lesson = lessons[i];
-        if (lesson == undefined) return;
-        return ctx.prisma.user.update({
+      const promises = lessons.map((lesson) => {
+        return ctx.prisma.lesson.update({
           where: {
-            id: lessonId,
+            id: lesson.id,
           },
           data: {
-            attendance: lesson.attendance.filter(
-              (lessonId) => lessonId !== input
-            ),
+            attendance: lesson.attendance.filter((x) => x !== user.id),
           },
         });
       });
