@@ -46,17 +46,16 @@ const TopicEditor: NextPage<
   const { toast } = useToast();
   const [lesson, setLesson] = useState<Lesson>();
   const [topic, setTopic] = useState<Topic>();
+  const topicIdRef = useRef<HTMLDivElement>(null);
   const dayRef = useRef<HTMLInputElement>(null);
   const monthRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
   const lessonLocationRef = useRef<HTMLInputElement>(null);
-  const [topicId, setTopicId] = useState("");
   const router = useRouter();
   const lessonQuery = api.lessons.getById.useQuery(lessonId, {
     onSuccess({ lesson: l, topic: t }) {
       setLesson(l);
       setTopic(t);
-      setTopicId(t.id);
     },
     onError(error) {
       toast({
@@ -119,13 +118,23 @@ const TopicEditor: NextPage<
       lessonLocationRef.current === null ||
       yearRef.current == undefined ||
       monthRef.current == undefined ||
-      dayRef.current == undefined
-    )
+      dayRef.current == undefined ||
+      topicIdRef.current == undefined
+    ) {
       return;
+    }
+
     const timestamp = new Date();
     timestamp.setFullYear(Number(yearRef.current.value));
     timestamp.setMonth(Number(monthRef.current.value) - 1);
     timestamp.setDate(Number(dayRef.current.value));
+
+    const topicId = (
+      topicIdRef.current.querySelector(`[aria-checked="true"]`) as unknown as {
+        value: string;
+      }
+    ).value;
+
     // Get new title
     editor.mutate({
       id: lesson.id,
@@ -155,14 +164,7 @@ const TopicEditor: NextPage<
                 <Button variant="link">No topics found CLICK HERE</Button>
               </Link>
             ) : (
-              <RadioGroup
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  const topicId = target.value;
-                  setTopicId(topicId);
-                }}
-                defaultValue={(topicsQuery.data[0] || { id: "" }).id}
-              >
+              <RadioGroup ref={topicIdRef} defaultValue={lesson.topicId}>
                 {topicsQuery.data.map((topic, i) => {
                   return (
                     <div key={i} className="flex items-center space-x-2">
