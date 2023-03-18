@@ -8,7 +8,14 @@ import { useSession } from "next-auth/react";
 import checkRoles from "@/utils/clientCheckRole";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Edit, PlusIcon, TrashIcon } from "lucide-react";
+import {
+  Calendar,
+  Edit,
+  Pin,
+  PinIcon,
+  PlusIcon,
+  TrashIcon,
+} from "lucide-react";
 import type { Lesson } from "@prisma/client";
 import { useToast } from "@/hooks/ui/use-toast";
 import { useRouter } from "next/router";
@@ -133,7 +140,10 @@ export default function TableContent() {
           <Link href={`/lessons/${nextLesson.id}`}>
             <TypographyP text={dateString} />
             {/* Show location */}
-            <p>{nextLesson.location}</p>
+            <div className="flex flex-row">
+              <p>{nextLesson.location}</p>
+              <PinIcon className="mx-2 h-4 w-4" />
+            </div>
             {/* Show topic description */}
             <TypographyH4 title={topic.title} />
             <TypographyP

@@ -296,18 +296,18 @@ export default function Lessons({
       <div className="flex flex-row justify-around">
         <div className="flex flex-col">
           <TypographyH1 title="About the lesson" />
-          {session.user.role === "SECRETARY_GENERAL" ||
-            (session.user.role === "TEACHER" && (
-              <Link
-                className="flex flex-row"
-                href={`/dashboard/edit/lesson/${lessonId}`}
-              >
-                <Button variant="link">
-                  Edit the lesson
-                  <Edit className="mx-2 h-4 w-4" />
-                </Button>
-              </Link>
-            ))}
+          {(session.user.role === "SECRETARY_GENERAL" ||
+            session.user.role === "TEACHER") && (
+            <Link
+              className="flex flex-row"
+              href={`/dashboard/edit/lesson/${lessonId}`}
+            >
+              <Button variant="link">
+                Edit the lesson
+                <Edit className="mx-2 h-4 w-4" />
+              </Button>
+            </Link>
+          )}
           {session.user.role === "TEACHER" && (
             <Link
               className="flex flex-row"
