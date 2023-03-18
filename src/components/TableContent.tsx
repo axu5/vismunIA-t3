@@ -41,8 +41,12 @@ export default function TableContent() {
   const { data, status } = useSession();
   const router = useRouter();
   const apiContext = api.useContext();
-  const lessonsQuery = api.lessons.getAll.useQuery("asc");
-  const topicsQuery = api.topics.getAll.useQuery();
+  const lessonsQuery = api.lessons.getAll.useQuery("asc", {
+    refetchOnWindowFocus: false,
+  });
+  const topicsQuery = api.topics.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
   const lessonDeleter = api.lessons.delete.useMutation({
     async onSuccess(data) {
       await apiContext.lessons.invalidate();

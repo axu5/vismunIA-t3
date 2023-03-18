@@ -19,7 +19,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Dashboard: NextPage = () => {
-  const { data: users, isLoading } = api.users.getAll.useQuery();
+  const { data: users, isLoading } = api.users.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <UserAllowed allowed={["TEACHER"]}>

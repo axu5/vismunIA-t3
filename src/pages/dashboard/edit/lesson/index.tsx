@@ -28,12 +28,15 @@ const NewLesson: NextPage = () => {
   const utils = api.useContext();
   const router = useRouter();
 
-  const allLessons = api.lessons.getAll.useQuery();
+  const allLessons = api.lessons.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
   const allTopics = api.topics.getAll.useQuery(undefined, {
     onSuccess(data) {
       if (!data[0]) return;
       setTopic(data[0].id);
     },
+    refetchOnWindowFocus: false,
   });
 
   const deleter = api.lessons.delete.useMutation({

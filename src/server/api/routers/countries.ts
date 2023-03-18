@@ -11,8 +11,8 @@ const positionSchema = z.enum([
 ]);
 
 export const countriesRouter = createTRPCRouter({
-  /** 
-   * @param topicId 
+  /**
+   * @param topicId
    * @returns All countries associated with the topicId provided
    */
   getByTopic: protectedProcedure

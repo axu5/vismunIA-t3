@@ -94,11 +94,17 @@ export default function Lessons({
   }, [session]);
   const { toast } = useToast();
   const { data: lessonQueryData, isLoading: lessonIsLoading } =
-    api.lessons.getById.useQuery(lessonId);
+    api.lessons.getById.useQuery(lessonId, {
+      refetchOnWindowFocus: false,
+    });
   const { data: countries, isLoading: countriesIsLoading } =
-    api.countries.getByTopic.useQuery(topicId);
+    api.countries.getByTopic.useQuery(topicId, {
+      refetchOnWindowFocus: false,
+    });
   const { data: userCountry, isLoading: userCountryIsLoading } =
-    api.countries.getUserCountry.useQuery(topicId);
+    api.countries.getUserCountry.useQuery(topicId, {
+      refetchOnWindowFocus: false,
+    });
   const addMemberMutation = api.countries.addStudent.useMutation({
     onSuccess(country) {
       const { name } = country;
@@ -124,7 +130,9 @@ export default function Lessons({
     },
   });
   const { data: documents, isLoading: documentsIsLoading } =
-    api.documents.getByTopic.useQuery(topicId);
+    api.documents.getByTopic.useQuery(topicId, {
+      refetchOnWindowFocus: false,
+    });
   const utils = api.useContext();
   // TODO: Somehow get the flag?
   const countryRef = useRef<HTMLInputElement>(null);

@@ -18,7 +18,9 @@ const Dashboard: NextPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const utils = api.useContext();
-  const allTopics = api.topics.getAll.useQuery();
+  const allTopics = api.topics.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
 
   const topicApi = api.topics.create.useMutation({
     onSuccess(_data, variables) {
