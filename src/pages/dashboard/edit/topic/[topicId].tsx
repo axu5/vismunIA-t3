@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/Input";
 import TypographyH4 from "@/components/ui/TypographyH4";
 import { Button } from "@/components/ui/button";
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useRef } from "react";
 import { useToast } from "@/hooks/ui/use-toast";
 import Loading from "@/components/Loading";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,13 +15,16 @@ const TopicEditor: NextPage = () => {
   const { toast } = useToast();
   const router = useRouter();
   const { topicId } = router.query;
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const _topicId = typeof topicId === "string" ? topicId : "";
   const topic = api.topics.getById.useQuery(_topicId, {
     onSuccess(data) {
-      setTitle(data.title);
-      setDescription(data.description);
+      if (titleRef.current != undefined) {
+        titleRef.current.value = data.title;
+      }
+      if (descriptionRef.current != undefined)
+        descriptionRef.current.value = data.description;
     },
   });
   const deleter = api.topics.delete.useMutation({
@@ -50,11 +53,13 @@ const TopicEditor: NextPage = () => {
   });
   function editMe(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (descriptionRef.current == undefined || titleRef.current == undefined)
+      return;
     // Get new title
     editor.mutate({
       id: _topicId,
-      title,
-      description,
+      title: titleRef.current.value,
+      description: descriptionRef.current.value,
     });
   }
 
@@ -67,18 +72,16 @@ const TopicEditor: NextPage = () => {
         <form className="flex flex-col" onSubmit={editMe}>
           <TypographyH4 title="Topic title" />
           <Input
-            value={title}
+            ref={titleRef}
             type="text"
             placeholder="Topic title"
-            onChange={(e) => setTitle(e.target.value)}
             required={true}
           />
           <Label htmlFor="description">Topic description</Label>
           <Textarea
+            ref={descriptionRef}
             id="description"
-            value={description}
             placeholder="Topic description"
-            onChange={(e) => setDescription(e.target.value)}
           />
           <Button variant="destructive" type="button" onClick={deleteMe}>
             Delete this topic
