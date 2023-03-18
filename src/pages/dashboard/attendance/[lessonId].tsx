@@ -67,33 +67,40 @@ export default function Attendance({
         });
       };
     };
-    return students.map((student) => {
-      return [
-        <div key={0}>{student.name}</div>,
-        <Button
-          key={1}
-          onClick={() => {
-            void toggleAttendance(student)();
-          }}
-          variant="ghost"
-          className={localAttendance.get(student.id) ? "bg-green-300" : ""}
-          disabled={localAttendance.get(student.id)}
-        >
-          Present
-        </Button>,
-        <Button
-          key={2}
-          onClick={() => {
-            void toggleAttendance(student)();
-          }}
-          variant="ghost"
-          className={localAttendance.get(student.id) ? "" : "bg-red-300"}
-          disabled={!localAttendance.get(student.id)}
-        >
-          Absent
-        </Button>,
-      ];
-    });
+    return students
+      .sort((a, b) => {
+        const aLastName = a.name.split(/ +/g)[1] || "";
+        const bLastName = b.name.split(/ +/g)[1] || "";
+        console.log(aLastName, bLastName);
+        return aLastName < bLastName ? -1 : 1;
+      })
+      .map((student) => {
+        return [
+          <div key={0}>{student.name}</div>,
+          <Button
+            key={1}
+            onClick={() => {
+              void toggleAttendance(student)();
+            }}
+            variant="ghost"
+            className={localAttendance.get(student.id) ? "bg-green-300" : ""}
+            disabled={localAttendance.get(student.id)}
+          >
+            Present
+          </Button>,
+          <Button
+            key={2}
+            onClick={() => {
+              void toggleAttendance(student)();
+            }}
+            variant="ghost"
+            className={localAttendance.get(student.id) ? "" : "bg-red-300"}
+            disabled={!localAttendance.get(student.id)}
+          >
+            Absent
+          </Button>,
+        ];
+      });
   }, [students, attendance, attendanceMutator, lessonId, localAttendance]);
 
   if (
