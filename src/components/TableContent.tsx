@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 import checkRoles from "@/utils/clientCheckRole";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { Edit, PlusIcon, TrashIcon } from "lucide-react";
 import type { Lesson } from "@prisma/client";
 import { useToast } from "@/hooks/ui/use-toast";
 import { useRouter } from "next/router";
@@ -106,7 +106,8 @@ export default function TableContent() {
               }&d=${current.getDate()}`}
             >
               <Button variant={`outline`}>
-                <PlusIcon />
+                {/* Plus icon is a little bigger */}
+                <PlusIcon className="h-5 w-5" />
               </Button>
             </Link>
           )}
@@ -131,14 +132,24 @@ export default function TableContent() {
         >
           <Link href={`/lessons/${nextLesson.id}`}>
             <TypographyP text={dateString} />
+            {/* Show location */}
+            <p>{nextLesson.location}</p>
+            {/* Show topic description */}
             <TypographyH4 title={topic.title} />
             <TypographyP
               text={topic.description ? topic.description : "No description"}
             />
           </Link>
           {isAuthorized && (
+            <Link href={`/dashboard/edit/lesson/${nextLesson.id}`}>
+              <Button variant="ghost">
+                <Edit className="mx-2 h-4 w-4" />
+              </Button>
+            </Link>
+          )}
+          {isAuthorized && (
             <Button variant="ghost" onClick={deleteMe(nextLesson)}>
-              <TrashIcon />
+              <TrashIcon className="mx-2 h-4 w-4" />
             </Button>
           )}
         </div>

@@ -1,7 +1,7 @@
 import type { UserRole } from "@prisma/client";
 
-const checkRoles = (role: UserRole, allowedRoles: UserRole[]): boolean => {
-  return allowedRoles.some((allowedRole) => allowedRole === role);
+const checkRoles = (userRole: UserRole, allowedRoles: UserRole[]): boolean => {
+  return allowedRoles.some((allowedRole) => allowedRole === userRole);
 };
 
 export default checkRoles;

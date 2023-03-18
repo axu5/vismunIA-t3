@@ -35,7 +35,7 @@ const Navbar = () => {
             <div className="flex flex-row">
               <div className="flex flex-row">
                 <TypographyH3
-                  className=""
+                  className="mx-5 mt-1"
                   title={`Welcome ${session.user.name as string}`}
                 />
               </div>

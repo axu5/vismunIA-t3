@@ -72,12 +72,14 @@ const TopicEditor: NextPage<
         yearRef.current == undefined ||
         monthRef.current == undefined ||
         dayRef.current == undefined ||
+        lessonLocationRef.current == undefined ||
         lesson == undefined
       )
     ) {
       dayRef.current.value = lesson.timestamp.getDate().toString();
       monthRef.current.value = (lesson.timestamp.getMonth() + 1).toString();
       yearRef.current.value = lesson.timestamp.getFullYear().toString();
+      lessonLocationRef.current.value = lesson.location;
     }
   }, [lesson]);
   const topicsQuery = api.topics.getAll.useQuery();
@@ -141,18 +143,7 @@ const TopicEditor: NextPage<
         <Link href="/dashboard/edit/lesson">Go back</Link>
         <form onSubmit={editMe}>
           <TypographyH4 title="Lesson Location" />
-          <Input
-            ref={lessonLocationRef}
-            value={lesson.location}
-            type="text"
-            placeholder="Topic title"
-            // onChange={(e) =>
-            //   setLesson((prev) => {
-            //     if (prev === undefined) return lessonQuery.data.lesson;
-            //     return { ...prev, location: e.target.value };
-            //   })
-            // }
-          />
+          <Input ref={lessonLocationRef} type="text" placeholder="Location" />
           <DatePicker dayRef={dayRef} monthRef={monthRef} yearRef={yearRef} />
           <TypographyH4 title="Lesson topic" />
           {topicsQuery.isSuccess &&
