@@ -107,20 +107,21 @@ export const lessonsRouter = createTRPCRouter({
         },
       });
 
+      // Get users that were a part of lesson.attendance
       const users = await ctx.prisma.user.findMany({
         where: {
           id: { in: lesson.attendance },
         },
       });
-      // get attendance and delete from users
-      const promises = lesson.attendance.map((studentId, i) => {
-        const user = users[i];
-        if (user == undefined) return;
+      // Delete attendance data from users for the deleted lesson
+      const promises = users.map((user) => {
         return ctx.prisma.user.update({
           where: {
-            id: studentId,
+            id: user.id,
           },
           data: {
+            // Map attendance data to be all previous data
+            // except for the lesson being deleted
             attendance: user.attendance.filter(
               (lessonId) => lessonId !== input
             ),
@@ -128,6 +129,7 @@ export const lessonsRouter = createTRPCRouter({
         });
       });
 
+      // Parallel processing of database requests
       await Promise.all(promises);
 
       return lesson;

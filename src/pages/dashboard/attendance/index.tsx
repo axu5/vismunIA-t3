@@ -51,7 +51,7 @@ export default function Attendance() {
               }),
             ];
           if (user === undefined) return [];
-          return [user.name, user.attendance.length.toString()].concat(
+          return [user.name, `=SUM($C${i + 3}: $ZZ${i + 3})`].concat(
             ...lessons.map((lesson) => {
               return lesson.attendance.includes(user.id).toString();
             })
