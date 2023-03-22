@@ -42,7 +42,7 @@ export default function Attendance({
     new Map()
   );
   const { data: students, isLoading: isLoadingStudents } =
-    api.users.getUsersByRole.useQuery("STUDENT", {
+    api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {
       refetchOnWindowFocus: false,
     });
   const { data: attendance, isLoading: isLoadingAttendance } =

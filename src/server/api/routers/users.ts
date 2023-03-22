@@ -102,11 +102,13 @@ export const usersRouter = createTRPCRouter({
       return true;
     }),
   getUsersByRole: protectedProcedureTeacher
-    .input(userRoleType)
+    .input(z.array(userRoleType))
     .query(async ({ ctx, input }) => {
       const users = await ctx.prisma.user.findMany({
         where: {
-          role: input,
+          role: {
+            in: input,
+          },
         },
         orderBy: {
           name: "asc",
