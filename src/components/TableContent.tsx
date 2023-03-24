@@ -8,14 +8,7 @@ import { useSession } from "next-auth/react";
 import checkRoles from "@/utils/clientCheckRole";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import {
-  Calendar,
-  Edit,
-  Pin,
-  PinIcon,
-  PlusIcon,
-  TrashIcon,
-} from "lucide-react";
+import { Edit, PinIcon, PlusIcon, TrashIcon } from "lucide-react";
 import type { Lesson } from "@prisma/client";
 import { useToast } from "@/hooks/ui/use-toast";
 import { useRouter } from "next/router";

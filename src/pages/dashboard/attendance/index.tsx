@@ -102,9 +102,7 @@ export default function Attendance() {
 
       // Join 2d array as comma separated values
       const csv = processedAttendanceData
-        .map((row) => {
-          return row.join(",");
-        })
+        .map((row) => row.join(","))
         .join("\n");
 
       // Download the CSV File
