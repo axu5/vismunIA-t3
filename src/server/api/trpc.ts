@@ -117,16 +117,25 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 
 /**
  * Authenticate based on user role
+ * @param {UserRole[]} roles These are the roles which are allowed access
  */
 const enforceRole = (roles: UserRole[]) =>
   t.middleware(({ ctx, next }) => {
     if (
+      // If no cookies are found (ctx.session) throw error
       !ctx.session ||
+      // If session exists, however a user doesn't, throw an error
       !ctx.session.user ||
+      // Since session and user exist, check that that user has
+      // a role which is a part of roles. (roles.some is a for loop
+      // to check if any condition is true, then returns true)
       !roles.some((role) => role === ctx.session?.user.role)
     ) {
+      // Throw HTTP CODE 401 UNAUTHORIZED
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+
+    // Otherwise continue to the server function
     return next({
       ctx: {
         // infers the `session` as non-nullable

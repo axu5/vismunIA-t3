@@ -65,9 +65,10 @@ const NewLesson: NextPage = () => {
         title: "Successfully created lesson",
       });
     },
-    onError() {
+    onError({ message }) {
       toast({
         title: "Failed to create lesson",
+        description: message,
         variant: "destructive",
       });
     },

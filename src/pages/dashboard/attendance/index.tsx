@@ -8,27 +8,60 @@ import isBefore from "date-fns/isBefore";
 import { FileDown } from "lucide-react";
 import { type FormEvent, useRef } from "react";
 
+function downloadCSV(filename: string, data: string) {
+  const blob = new Blob([data], { type: "text/csv" });
+  const csvURL = window.URL.createObjectURL(blob);
+  const tempLink = document.createElement("a");
+  tempLink.href = csvURL;
+  tempLink.setAttribute("download", filename);
+  tempLink.click();
+  window.URL.createObjectURL(blob);
+}
+
 export default function Attendance() {
   const attendance = api.lessons.getAttendanceData.useMutation({
     onSuccess(data) {
+      // Get user and lesson data from API
       const { users, lessons } = data;
 
-      const usersAlphabeticalLastName = users.sort((a, b) => {
-        const aLastName = a.name.split(" ")[1]?.toLowerCase();
-        const bLastName = b.name.split(" ")[1]?.toLowerCase();
+      // Bubble sort users by last name as database cannot sort
+      // this way. It cannot sort like this because name is one
+      // continuous string, and not two string elements for first
+      // and last name
+      for (let i = 0; i < users.length; ++i) {
+        for (let j = 0; j < users.length - i - 1; ++j) {
+          const a = users[j];
+          const b = users[j + 1];
 
-        if (aLastName == undefined || bLastName == undefined) return 0;
+          // If a or b is undefined, continue with the loop
+          if (a == undefined || b == undefined) {
+            console.assert(false, "Unreachable, student not found");
+            continue;
+          }
 
-        return aLastName < bLastName ? -1 : 1;
-      });
+          // Split lastname from fullname and lowercase
+          // if no last name exists, use first name
+          const aLastName =
+            a.name.split(" ")[1]?.toLowerCase() || a.name.toLowerCase();
+          const bLastName =
+            b.name.split(" ")[1]?.toLowerCase() || b.name.toLowerCase();
+
+          // Compare UTF-16 (js standard) with the < operator
+          if (aLastName > bLastName) {
+            // Swap users
+            users[j] = b;
+            users[j + 1] = a;
+          }
+        }
+      }
 
       // make a 2d array of size users.length and lessons.length
       // where the lessons are the columns and users are the rows
       // add 2 to account for header and total count rows and columns
-      const attendanceData = new Array(usersAlphabeticalLastName.length + 2)
+      const attendanceData = new Array(users.length + 2)
         .fill(null)
         .map((_, i) => {
-          const user = usersAlphabeticalLastName[i - 2];
+          const user = users[i - 2];
           if (i === 0)
             return [
               "",
@@ -62,25 +95,23 @@ export default function Attendance() {
       const processedAttendanceData = attendanceData.map((row, rowIdx) => {
         if (rowIdx <= 1) return row;
         const attendance = row.slice(2, row.length);
+        // For each student, find how many times they attended a lesson in this period
         row[1] = attendance.filter((x) => x == "TRUE").length.toString();
         return row;
       });
 
+      // Join 2d array as comma separated values
       const csv = processedAttendanceData
         .map((row) => {
           return row.join(",");
         })
         .join("\n");
 
-      const blob = new Blob([csv], { type: "text/csv" });
-      const csvURL = window.URL.createObjectURL(blob);
-      const tempLink = document.createElement("a");
-      tempLink.href = csvURL;
-      tempLink.setAttribute("download", "filename.csv");
-      tempLink.click();
-      window.URL.createObjectURL(blob);
+      // Download the CSV File
+      downloadCSV("attendance.csv", csv);
     },
   });
+
   const { toast } = useToast();
   const startMonthRef = useRef<HTMLInputElement>(null);
   const startYearRef = useRef<HTMLInputElement>(null);

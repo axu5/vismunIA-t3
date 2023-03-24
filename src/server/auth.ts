@@ -46,7 +46,6 @@ export const authOptions: NextAuthOptions = {
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         session.user.role = user.role;
       }
       return session;
@@ -67,7 +66,10 @@ export const authOptions: NextAuthOptions = {
 
       // Only allow students that go to this school to log in
       const googleProfile = profile as GoogleProfile;
-      return googleProfile.hd === "verdala.org";
+      // Return true if user is allowed to create an account
+      return env.NODE_ENV === "production"
+        ? googleProfile.hd === "verdala.org"
+        : true;
     },
   },
   adapter: PrismaAdapter(prisma),

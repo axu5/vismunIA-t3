@@ -76,18 +76,26 @@ export const lessonsRouter = createTRPCRouter({
       // 2 lessons can't exist on the same date
       const { location, timestamp, topicId } = input;
       const dateStrIdentifier = timestamp.toDateString();
+
+      // Try to find a lesson with the same date string
       const exists = await ctx.prisma.lesson.findFirst({
         where: {
           dateStr: dateStrIdentifier,
         },
       });
+
+      // If "exists" is not null, a lesson was found and this should throw an error
       if (exists !== null) {
+        // Exit the function with keyword "throw"
         throw new TRPCError({
           code: "CONFLICT",
+          // Return an appropriate error message
           message: `Lesson already exists on date ${dateStrIdentifier}`,
         });
       }
-      const document = await ctx.prisma.lesson.create({
+
+      // Create a new lesson in the database using prisma
+      const newLesson = await ctx.prisma.lesson.create({
         data: {
           location,
           timestamp,
@@ -95,7 +103,9 @@ export const lessonsRouter = createTRPCRouter({
           topicId,
         },
       });
-      return document;
+
+      // Return this created lesson to client for updating UI
+      return newLesson;
     }),
 
   delete: protectedProcedureSecretaryGeneral
