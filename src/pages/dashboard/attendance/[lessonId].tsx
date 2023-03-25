@@ -9,7 +9,7 @@ import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "@/server/api/root";
 import { createInnerTRPCContext } from "@/server/api/trpc";
@@ -66,9 +66,13 @@ export default function Attendance({
   const attendanceMutator = api.users.setAttendance.useMutation();
 
   const titles = [<>Name</>, <>Present</>, <>Absent</>];
-  const rows = useMemo(() => {
-    if (students == undefined || attendance == undefined)
-      return [[]] as ReactNode[][];
+  const [rows, setRows] = useState<ReactNode[][]>([[]] as ReactNode[][]);
+  useEffect(() => {
+    if (students == undefined || attendance == undefined) {
+      setRows([[]] as ReactNode[][]);
+      return;
+    }
+
     const toggleAttendance = (student: User) => {
       return () => {
         const present = !attendance.get(student.id);
@@ -83,39 +87,42 @@ export default function Attendance({
         });
       };
     };
-    return students
-      .sort((a, b) => {
-        const aLastName = a.name.split(/ +/g)[1] || "";
-        const bLastName = b.name.split(/ +/g)[1] || "";
-        return aLastName < bLastName ? -1 : 1;
-      })
-      .map((student) => {
-        return [
-          <div key={0}>{student.name}</div>,
-          <Button
-            key={1}
-            onClick={() => {
-              void toggleAttendance(student)();
-            }}
-            variant="ghost"
-            className={localAttendance.get(student.id) ? "bg-green-300" : ""}
-            disabled={localAttendance.get(student.id)}
-          >
-            Present
-          </Button>,
-          <Button
-            key={2}
-            onClick={() => {
-              void toggleAttendance(student)();
-            }}
-            variant="ghost"
-            className={localAttendance.get(student.id) ? "" : "bg-red-300"}
-            disabled={!localAttendance.get(student.id)}
-          >
-            Absent
-          </Button>,
-        ];
-      });
+
+    setRows(
+      students
+        .sort((a, b) => {
+          const aLastName = a.name.split(/ +/g)[1] || "";
+          const bLastName = b.name.split(/ +/g)[1] || "";
+          return aLastName < bLastName ? -1 : 1;
+        })
+        .map((student) => {
+          return [
+            <div key={0}>{student.name}</div>,
+            <Button
+              key={1}
+              onClick={() => {
+                void toggleAttendance(student)();
+              }}
+              variant="ghost"
+              className={localAttendance.get(student.id) ? "bg-green-300" : ""}
+              disabled={localAttendance.get(student.id)}
+            >
+              Present
+            </Button>,
+            <Button
+              key={2}
+              onClick={() => {
+                void toggleAttendance(student)();
+              }}
+              variant="ghost"
+              className={localAttendance.get(student.id) ? "" : "bg-red-300"}
+              disabled={!localAttendance.get(student.id)}
+            >
+              Absent
+            </Button>,
+          ];
+        })
+    );
   }, [students, attendance, attendanceMutator, lessonId, localAttendance]);
 
   if (
