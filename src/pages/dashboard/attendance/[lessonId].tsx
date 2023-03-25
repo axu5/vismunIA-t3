@@ -60,7 +60,7 @@ export default function Attendance({
     }
 
     const toggleAttendance = (student: User) => {
-      return async () => {
+      return () => {
         const present = !localAttendance.get(student.id);
         attendanceMutator.mutate({
           userId: student.id,
@@ -101,7 +101,7 @@ export default function Attendance({
           </Button>,
         ];
       });
-  }, [students, attendance, attendanceMutator, lessonId]);
+  }, [students, attendance, attendanceMutator, lessonId, localAttendance]);
 
   if (
     isLoadingLessons ||
