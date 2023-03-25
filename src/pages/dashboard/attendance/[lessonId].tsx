@@ -10,12 +10,15 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import { type ReactNode, useMemo, useState } from "react";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "@/server/api/root";
+import { createInnerTRPCContext } from "@/server/api/trpc";
+import superjson from "superjson";
 
-export function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { lessonId } = context.query;
-  const id = typeof lessonId === "string" ? lessonId : "";
 
-  if (!lessonId) {
+  if (!lessonId || typeof lessonId !== "string") {
     return {
       redirect: {
         permanent: false,
@@ -24,9 +27,22 @@ export function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson, // optional - adds superjson serialization
+  });
+
+  await Promise.all([
+    ssg.lessons.getById.prefetch(lessonId),
+    ssg.users.getUsersByRole.prefetch(["STUDENT", "SECRETARY_GENERAL"]),
+    ssg.users.getAttendance.prefetch(lessonId),
+  ]);
+
   return {
     props: {
-      lessonId: id,
+      trpcState: ssg.dehydrate(),
+      lessonId,
     },
   };
 }
