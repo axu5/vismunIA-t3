@@ -33,15 +33,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     transformer: superjson, // optional - adds superjson serialization
   });
 
-  await Promise.all([
-    ssg.lessons.getById.prefetch(lessonId),
-    ssg.users.getUsersByRole.prefetch(["STUDENT", "SECRETARY_GENERAL"]),
-  ]);
+  //   await Promise.all([
+  //     ssg.lessons.getById.prefetch(lessonId),
+  //     ssg.users.getUsersByRole.prefetch(["STUDENT", "SECRETARY_GENERAL"]),
+  //   ]);
   const previousAttendance = await ssg.users.getAttendance.fetch(lessonId);
 
   return {
     props: {
-      trpcState: ssg.dehydrate(),
+      //   trpcState: ssg.dehydrate(),
       previousAttendance,
       lessonId,
     },
