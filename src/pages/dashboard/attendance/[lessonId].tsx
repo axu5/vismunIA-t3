@@ -11,7 +11,7 @@ import type {
 } from "next";
 import { type ReactNode, useMemo, useState } from "react";
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export function getServerSideProps(context: GetServerSidePropsContext) {
   const { lessonId } = context.query;
 
   if (!lessonId || typeof lessonId !== "string") {
@@ -40,7 +40,6 @@ export default function Attendance({
   const [localAttendance, setLocalAttendance] = useState<Map<string, boolean>>(
     new Map()
   );
-  const utils = api.useContext();
   const { data: students, isLoading: isLoadingStudents } =
     api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {
       refetchOnWindowFocus: false,
