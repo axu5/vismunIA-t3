@@ -9,11 +9,7 @@ import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { type ReactNode, useEffect, useState } from "react";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "@/server/api/root";
-import { createInnerTRPCContext } from "@/server/api/trpc";
-import superjson from "superjson";
+import { type ReactNode, useMemo, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { lessonId } = context.query;
@@ -27,22 +23,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
-    transformer: superjson, // optional - adds superjson serialization
-  });
-
-  //   await Promise.all([
-  //     ssg.lessons.getById.prefetch(lessonId),
-  //     ssg.users.getUsersByRole.prefetch(["STUDENT", "SECRETARY_GENERAL"]),
-  //   ]);
-  const previousAttendance = await ssg.users.getAttendance.fetch(lessonId);
-
   return {
     props: {
-      //   trpcState: ssg.dehydrate(),
-      previousAttendance,
       lessonId,
     },
   };
@@ -50,78 +32,77 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 export default function Attendance({
   lessonId,
-  previousAttendance,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: lessons, isLoading: isLoadingLessons } =
-    api.lessons.getById.useQuery(lessonId, {});
-  const [localAttendance, setLocalAttendance] =
-    useState<Map<string, boolean>>(previousAttendance);
+    api.lessons.getById.useQuery(lessonId, {
+      refetchOnWindowFocus: false,
+    });
+  const [localAttendance, setLocalAttendance] = useState<Map<string, boolean>>(
+    new Map()
+  );
+  const utils = api.useContext();
   const { data: students, isLoading: isLoadingStudents } =
-    api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {});
+    api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {
+      refetchOnWindowFocus: false,
+    });
   const { data: attendance, isLoading: isLoadingAttendance } =
     api.users.getAttendance.useQuery(lessonId, {
-      onSuccess(students) {
-        setLocalAttendance(students);
+      onSuccess(data) {
+        setLocalAttendance(data);
       },
+      refetchOnWindowFocus: false,
     });
-  const attendanceMutator = api.users.setAttendance.useMutation();
+  const attendanceMutator = api.users.setAttendance.useMutation({});
 
   const titles = [<>Name</>, <>Present</>, <>Absent</>];
-  const [rows, setRows] = useState<ReactNode[][]>([[]] as ReactNode[][]);
-  useEffect(() => {
+  const rows = useMemo(() => {
     if (students == undefined || attendance == undefined) {
-      setRows([[]] as ReactNode[][]);
-      return;
+      return [[]] as ReactNode[][];
     }
 
     const toggleAttendance = (student: User) => {
-      return () => {
-        const present = !attendance.get(student.id);
-        setLocalAttendance((prev) => {
-          prev.set(student.id, present);
-          return prev;
-        });
+      return async () => {
+        const present = !localAttendance.get(student.id);
         attendanceMutator.mutate({
           userId: student.id,
           lessonId,
           present,
         });
+        localAttendance.set(student.id, present);
       };
     };
 
-    setRows((_prev) =>
-      students
-        .sort((a, b) => {
-          const aLastName = a.name.split(/ +/g)[1] || "";
-          const bLastName = b.name.split(/ +/g)[1] || "";
-          return aLastName < bLastName ? -1 : 1;
-        })
-        .map((student) => {
-          const attended = localAttendance.get(student.id);
-          return [
-            <div key={0}>{student.name}</div>,
-            <Button
-              key={1}
-              onClick={void toggleAttendance(student)}
-              variant="ghost"
-              className={attended ? "bg-green-300" : ""}
-              disabled={attended}
-            >
-              Present
-            </Button>,
-            <Button
-              key={2}
-              onClick={void toggleAttendance(student)}
-              variant="ghost"
-              className={attended ? "" : "bg-red-300"}
-              disabled={!attended}
-            >
-              Absent
-            </Button>,
-          ];
-        })
-    );
-  }, [students, attendance, attendanceMutator, lessonId, localAttendance]);
+    return students
+      .sort((a, b) => {
+        const aLastName = a.name.split(/ +/g)[1] || "";
+        const bLastName = b.name.split(/ +/g)[1] || "";
+        return aLastName < bLastName ? -1 : 1;
+      })
+      .map((student) => {
+        const attended = attendance.get(student.id);
+        return [
+          <div key={0}>{student.name}</div>,
+          <Button
+            key={1}
+            onClick={() => void toggleAttendance(student)()}
+            variant="ghost"
+            className={attended ? "bg-green-300" : ""}
+            disabled={attended}
+          >
+            Present
+          </Button>,
+          <Button
+            key={2}
+            onClick={() => void toggleAttendance(student)()}
+            variant="ghost"
+            className={attended ? "" : "bg-red-300"}
+            disabled={!attended}
+          >
+            Absent
+          </Button>,
+        ];
+      });
+  }, [students, attendance, attendanceMutator, lessonId]);
 
   if (
     isLoadingLessons ||
