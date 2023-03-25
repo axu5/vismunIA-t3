@@ -35,22 +35,17 @@ export default function Attendance({
   lessonId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: lessons, isLoading: isLoadingLessons } =
-    api.lessons.getById.useQuery(lessonId, {
-      refetchOnWindowFocus: false,
-    });
+    api.lessons.getById.useQuery(lessonId, {});
   const [localAttendance, setLocalAttendance] = useState<Map<string, boolean>>(
     new Map()
   );
   const { data: students, isLoading: isLoadingStudents } =
-    api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {
-      refetchOnWindowFocus: false,
-    });
+    api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {});
   const { data: attendance, isLoading: isLoadingAttendance } =
     api.users.getAttendance.useQuery(lessonId, {
       onSuccess(students) {
         setLocalAttendance(students);
       },
-      refetchOnWindowFocus: false,
     });
   const attendanceMutator = api.users.setAttendance.useMutation();
 

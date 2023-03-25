@@ -52,26 +52,16 @@ export const lessonsRouter = createTRPCRouter({
 
   create: protectedProcedureSecretaryGeneral
     .input(
+      // ZOD data validation
       z.object({
-        /*
-         * Not mandatory as default behaviour
-         * pulls from last session's location
-         */
+        // Location is mandatory, and must be a strong.
         location: z.string().min(1),
-        /*
-         * Not mandatory as default behaviour is
-         * 1 week plus from last session's date
-         */
+        // Time when lesson will be, must be a date
         timestamp: z.date(),
-        /*
-         * Topic is mandatory as it cannot be
-         * auto generate. Needs to be validated
-         * as an existing topic.
-         */
+        // TopicId must be a string, which links to a PostgresDB Id (CUID)
         topicId: z.string().cuid(),
       })
     )
-    // TODO: functionality
     .mutation(async ({ ctx, input }) => {
       // 2 lessons can't exist on the same date
       const { location, timestamp, topicId } = input;
