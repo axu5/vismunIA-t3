@@ -36,12 +36,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   await Promise.all([
     ssg.lessons.getById.prefetch(lessonId),
     ssg.users.getUsersByRole.prefetch(["STUDENT", "SECRETARY_GENERAL"]),
-    ssg.users.getAttendance.prefetch(lessonId),
   ]);
+  const previousAttendance = await ssg.users.getAttendance.fetch(lessonId);
 
   return {
     props: {
       trpcState: ssg.dehydrate(),
+      previousAttendance,
       lessonId,
     },
   };
@@ -49,12 +50,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 export default function Attendance({
   lessonId,
+  previousAttendance,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: lessons, isLoading: isLoadingLessons } =
     api.lessons.getById.useQuery(lessonId, {});
-  const [localAttendance, setLocalAttendance] = useState<Map<string, boolean>>(
-    new Map()
-  );
+  const [localAttendance, setLocalAttendance] =
+    useState<Map<string, boolean>>(previousAttendance);
   const { data: students, isLoading: isLoadingStudents } =
     api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {});
   const { data: attendance, isLoading: isLoadingAttendance } =
@@ -88,7 +89,7 @@ export default function Attendance({
       };
     };
 
-    setRows(
+    setRows((_prev) =>
       students
         .sort((a, b) => {
           const aLastName = a.name.split(/ +/g)[1] || "";
@@ -96,27 +97,24 @@ export default function Attendance({
           return aLastName < bLastName ? -1 : 1;
         })
         .map((student) => {
+          const attended = localAttendance.get(student.id);
           return [
             <div key={0}>{student.name}</div>,
             <Button
               key={1}
-              onClick={() => {
-                void toggleAttendance(student)();
-              }}
+              onClick={void toggleAttendance(student)}
               variant="ghost"
-              className={localAttendance.get(student.id) ? "bg-green-300" : ""}
-              disabled={localAttendance.get(student.id)}
+              className={attended ? "bg-green-300" : ""}
+              disabled={attended}
             >
               Present
             </Button>,
             <Button
               key={2}
-              onClick={() => {
-                void toggleAttendance(student)();
-              }}
+              onClick={void toggleAttendance(student)}
               variant="ghost"
-              className={localAttendance.get(student.id) ? "" : "bg-red-300"}
-              disabled={!localAttendance.get(student.id)}
+              className={attended ? "" : "bg-red-300"}
+              disabled={!attended}
             >
               Absent
             </Button>,
