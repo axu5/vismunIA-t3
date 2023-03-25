@@ -44,18 +44,20 @@ export default function Attendance({
     api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {
       refetchOnWindowFocus: false,
     });
-  const { data: attendance, isLoading: isLoadingAttendance } =
-    api.users.getAttendance.useQuery(lessonId, {
+  const { isLoading: isLoadingAttendance } = api.users.getAttendance.useQuery(
+    lessonId,
+    {
       onSuccess(data) {
         setLocalAttendance(data);
       },
       refetchOnWindowFocus: false,
-    });
+    }
+  );
   const attendanceMutator = api.users.setAttendance.useMutation({});
 
   const titles = [<>Name</>, <>Present</>, <>Absent</>];
   const rows = useMemo(() => {
-    if (students == undefined || attendance == undefined) {
+    if (students == undefined) {
       return [[]] as ReactNode[][];
     }
 
@@ -78,7 +80,7 @@ export default function Attendance({
         return aLastName < bLastName ? -1 : 1;
       })
       .map((student) => {
-        const attended = attendance.get(student.id);
+        const attended = localAttendance.get(student.id);
         return [
           <div key={0}>{student.name}</div>,
           <Button
@@ -101,15 +103,14 @@ export default function Attendance({
           </Button>,
         ];
       });
-  }, [students, attendance, attendanceMutator, lessonId, localAttendance]);
+  }, [students, attendanceMutator, lessonId, localAttendance]);
 
   if (
     isLoadingLessons ||
     isLoadingStudents ||
     isLoadingAttendance ||
     lessons == undefined ||
-    students == undefined ||
-    attendance == undefined
+    students == undefined
   ) {
     return <Loading />;
   }
