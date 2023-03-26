@@ -128,6 +128,29 @@ export const countriesRouter = createTRPCRouter({
         });
       }
 
+      const otherCountries = await ctx.prisma.country.findMany({
+        where: {
+          studentIds: {
+            has: userId,
+          },
+        },
+      });
+      if (otherCountries.length > 0) {
+        await Promise.all(
+          otherCountries.map((otherCountry) => {
+            // remove from other country
+            return ctx.prisma.country.update({
+              where: {
+                id: otherCountry.id,
+              },
+              data: {
+                studentIds: otherCountry.studentIds.filter((s) => s !== userId),
+              },
+            });
+          })
+        );
+      }
+
       const updatedCountry = await ctx.prisma.country.update({
         where: {
           id: countryId,

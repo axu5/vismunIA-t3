@@ -416,7 +416,11 @@ export default function Lessons({
 
           {/* List of all participating countries */}
           <TypographyTable
-            titles={[<>Countries</>]}
+            titles={
+              isAuthorized
+                ? ["Country", "Join/Leave", "Documents", "Delete"]
+                : ["Country", "Join/Leave", "Documents"]
+            }
             rows={
               countries.length > 0
                 ? countries.map((country: Country) => {
@@ -427,38 +431,40 @@ export default function Lessons({
                     ).length;
                     const userInThisCountry =
                       isInSomeCountry && country.id === userCountry.id;
-                    return [
-                      <div key={`${country.position}-${country.name}`}>
-                        {country.name}
-                        {!isInSomeCountry && (
-                          <Button
-                            variant="outline"
-                            onClick={handleJoinCountry(country.id)}
-                          >
-                            Join
-                          </Button>
-                        )}
-                        {userInThisCountry && (
-                          <Button
-                            variant="outline"
-                            onClick={handleLeaveCountry(country.id)}
-                          >
-                            Leave
-                          </Button>
-                        )}
-                        {isAuthorized && (
-                          <Button
-                            variant="destructive"
-                            onClick={handleDelete(country.id)}
-                          >
-                            DELETE
-                          </Button>
-                        )}
-                        {`Has ${countryDocs} documents`}
-                      </div>,
+                    const elements = [
+                      country.name,
+                      !isInSomeCountry || !userInThisCountry ? (
+                        <Button
+                          variant="outline"
+                          onClick={handleJoinCountry(country.id)}
+                        >
+                          Join
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="destructive"
+                          onClick={handleLeaveCountry(country.id)}
+                        >
+                          Leave
+                        </Button>
+                      ),
+                      `Has ${countryDocs} document${
+                        countryDocs != 1 ? "s" : ""
+                      }`,
                     ];
+                    if (isAuthorized) {
+                      elements.push(
+                        <Button
+                          variant="destructive"
+                          onClick={handleDelete(country.id)}
+                        >
+                          DELETE
+                        </Button>
+                      );
+                    }
+                    return elements;
                   })
-                : [[<>No countries in this lesson</>]]
+                : [["No countries in this lesson"]]
             }
           />
 

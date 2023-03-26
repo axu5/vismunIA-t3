@@ -112,8 +112,6 @@ const NewLesson: NextPage = () => {
       timestamp.setMonth(Number(m) - 1);
       timestamp.setDate(Number(d));
 
-      // this validation is not required
-      //   if (date.getTime() <= Date.now()) throw "Date must be in the future";
       const obj = {
         location: loc,
         timestamp,
@@ -132,7 +130,6 @@ const NewLesson: NextPage = () => {
   return (
     <UserAllowed allowed={["SECRETARY_GENERAL", "TEACHER"]}>
       <TypographyH1 title="Create a new Lesson" />
-      {/* TODO: COULD BE BETTER FROM UX */}
       <form className="flex flex-col" onSubmit={createNewLesson}>
         <TypographyH4 title="Location (required)" />
         <Input
