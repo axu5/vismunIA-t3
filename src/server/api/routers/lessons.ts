@@ -8,6 +8,7 @@ import {
 } from "../trpc";
 import isBefore from "date-fns/isBefore";
 import isAfter from "date-fns/isAfter";
+import { Lesson } from "@prisma/client";
 
 export const lessonsRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -157,43 +158,30 @@ export const lessonsRouter = createTRPCRouter({
       const { startDate, endDate } = input;
 
       // lessons will be columns, get them in chronological order
-      const lessons = await ctx.prisma.lesson.findMany({
+      const slicedLessons = await ctx.prisma.lesson.findMany({
+        where: {
+          timestamp: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
         orderBy: {
           timestamp: "asc",
         },
       });
 
-      // get start and end index based on the query
-      let start = 0;
-      let end = lessons.length;
-      while (
-        isBefore(
-          (lessons[start] || { timestamp: new Date() }).timestamp,
-          startDate
-        )
-      ) {
-        start++;
-      }
-
-      while (
-        lessons[end] != undefined &&
-        end > start &&
-        isAfter((lessons[end] || { timestamp: new Date() }).timestamp, endDate)
-      ) {
-        end--;
-      }
-
-      const slicedLessons = lessons.slice(start, end);
       // Use set to handle duplicates
       const userIds: Set<string> = new Set();
+      const lessons: Set<Lesson> = new Set();
 
-      for (let i = 0; i < lessons.length; ++i) {
-        const lesson = lessons[i];
+      for (let i = 0; i < slicedLessons.length; ++i) {
+        const lesson = slicedLessons[i];
         if (lesson == undefined) break;
         for (let j = 0; j < lesson.attendance.length; ++j) {
           const studentId = lesson.attendance[j];
           if (!studentId) break;
           userIds.add(studentId);
+          lessons.add(lesson);
         }
       }
 
@@ -207,7 +195,7 @@ export const lessonsRouter = createTRPCRouter({
       });
 
       return {
-        lessons: slicedLessons,
+        lessons: Array.from(lessons),
         users: users,
       };
     }),
