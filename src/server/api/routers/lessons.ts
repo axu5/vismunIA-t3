@@ -154,12 +154,13 @@ export const lessonsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { startDate, endDate } = input;
+      console.log(new Date(startDate), "\t", new Date(endDate));
 
       // lessons will be columns, get them in chronological order
       const slicedLessons = await ctx.prisma.lesson.findMany({
         where: {
           timestamp: {
-            gt: startDate,
+            gte: startDate,
             lte: endDate,
           },
         },

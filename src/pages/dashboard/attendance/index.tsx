@@ -163,16 +163,12 @@ export default function Attendance() {
         throw "Months have to be between 1 and 12";
       }
 
-      const startDate = new Date().setFullYear(
-        startYearNumber,
-        startMonthNumber - 1,
-        0
-      );
-      const endDate = new Date().setFullYear(
-        endYearNumber,
-        endMonthNumber - 1,
-        0
-      );
+      const startDate = new Date();
+      startDate.setFullYear(startYearNumber, startMonthNumber - 1, 1);
+      startDate.setUTCHours(0, 0, 0, 0);
+      const endDate = new Date();
+      endDate.setFullYear(endYearNumber, endMonthNumber - 1, 1);
+      endDate.setUTCHours(0, 0, 0, 0);
 
       // make sure start is before end
       if (!isBefore(startDate, endDate)) {
