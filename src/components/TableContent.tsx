@@ -9,7 +9,7 @@ import checkRoles from "@/utils/clientCheckRole";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Edit, PinIcon, PlusIcon, TrashIcon } from "lucide-react";
-import type { Lesson } from "@prisma/client";
+import { type Lesson, UserRole } from "@prisma/client";
 import { useToast } from "@/hooks/ui/use-toast";
 import { useRouter } from "next/router";
 import TypographyH4 from "./ui/TypographyH4";
@@ -68,7 +68,7 @@ export default function TableContent() {
     return [[]] as ReactNode[][];
 
   const isAuthorized = data
-    ? checkRoles(data.user.role, ["SECRETARY_GENERAL", "TEACHER"])
+    ? checkRoles(data.user.role, [UserRole.SECRETARY_GENERAL, UserRole.TEACHER])
     : false;
 
   function deleteMe(lesson: Lesson) {

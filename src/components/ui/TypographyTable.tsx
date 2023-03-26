@@ -20,14 +20,12 @@ const TypographyTable: FC<TypographyTableProps> = ({
 }) => {
   // Find the indices of the columns to exclude based on
   // the name matching the column title
-  const excludeLUT: boolean[] =
-    exclude == undefined
-      ? new Array(titles.length).fill(false)
-      : new Array(titles.length).fill(false).map((_, i) => {
-          const title = titles[i];
-          if (typeof title !== "string") return false;
-          return exclude.includes(title);
-        });
+  const excludeLUT = (exclude == undefined
+    ? new Array(titles.length).fill(false)
+    : new Array(titles.length).fill(false).map((_, i) => {
+        const title = titles[i];
+        return typeof title !== "string" ? false : exclude.includes(title);
+      })) as unknown as boolean[];
 
   // Go over each title and print it to the head of the HTML table component
   const titlesFormatted = titles.map((title, i) => {
