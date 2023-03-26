@@ -18,20 +18,19 @@ export const usersRouter = createTRPCRouter({
           id: input,
         },
       });
+
       if (!lesson) {
         throw new TRPCError({
           code: "NOT_FOUND",
         });
       }
+
       const users = await ctx.prisma.user.findMany({
         where: {
           role: {
-            in: ["STUDENT", "SECRETARY_GENERAL"],
+            in: [UserRole.STUDENT, UserRole.SECRETARY_GENERAL],
           },
         },
-        // orderBy: {
-        //   name: "asc",
-        // },
       });
 
       // return a map of (userId => boolean)

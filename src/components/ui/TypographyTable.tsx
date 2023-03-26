@@ -20,18 +20,20 @@ const TypographyTable: FC<TypographyTableProps> = ({
 }) => {
   // Find the indices of the columns to exclude based on
   // the name matching the column title
-  const excludeIndices = new Array((exclude || []).length);
-  for (let i = 0; i < excludeIndices.length; ++i) {
-    if (exclude?.includes(titles[i]?.valueOf() as string)) {
-      excludeIndices.push(i);
-    }
-  }
+  const excludeLUT: boolean[] =
+    exclude == undefined
+      ? new Array(titles.length).fill(false)
+      : new Array(titles.length).fill(false).map((_, i) => {
+          const title = titles[i];
+          if (typeof title !== "string") return false;
+          return exclude.includes(title);
+        });
 
   // Go over each title and print it to the head of the HTML table component
   const titlesFormatted = titles.map((title, i) => {
     // If i is in "excludeIndices" continue with the function
     // without appending it to the titles.
-    if (excludeIndices.includes(i)) return;
+    if (excludeLUT[i]) return;
     return (
       <th
         // Key identifies in which order the column headers are sorted
@@ -56,7 +58,7 @@ const TypographyTable: FC<TypographyTableProps> = ({
         {row.map((text, colIndex) => {
           // If i is in "excludeIndices" continue with the function
           // without appending it to the row.
-          if (excludeIndices.includes(colIndex)) return;
+          if (excludeLUT[colIndex]) return;
           // Return
           return (
             <td
