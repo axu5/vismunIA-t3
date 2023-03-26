@@ -25,11 +25,13 @@ export const usersRouter = createTRPCRouter({
       }
       const users = await ctx.prisma.user.findMany({
         where: {
-          role: "STUDENT",
+          role: {
+            in: ["STUDENT", "SECRETARY_GENERAL"],
+          },
         },
-        orderBy: {
-          name: "asc",
-        },
+        // orderBy: {
+        //   name: "asc",
+        // },
       });
 
       // return a map of (userId => boolean)
