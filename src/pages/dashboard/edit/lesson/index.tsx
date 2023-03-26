@@ -138,62 +138,9 @@ const NewLesson: NextPage = () => {
         <Input
           ref={locationRef}
           type="text"
-          //   value={location}
-          //   onChange={(e) => {
-          //     setLocation(e.target.value);
-          //   }}
           placeholder="Where is this lesson going to be held? (required)"
           required={true}
         />
-        {/* <TypographyH4 title="Select a date and time" />
-        <div>
-          <Label htmlFor="day">Day</Label>
-          <Input
-            type="text"
-            id="day"
-            ref={dayRef}
-            // value={day}
-            inputMode="numeric" // for phones
-            // onChange={(e) => {
-            //   const number = Number(e.target.value);
-            //   if (isNaN(number)) return;
-            //   setDay(number);
-            // }}
-            placeholder="Day"
-            required={true}
-          />
-          <Label htmlFor="month">Month</Label>
-          <Input
-            type="text"
-            id="day"
-            ref={monthRef}
-            // value={month}
-            inputMode="numeric" // for phones
-            // onChange={(e) => {
-            //   const number = Number(e.target.value);
-            //   if (isNaN(number)) return;
-            //   setMonth(number);
-            // }}
-            placeholder="Month"
-            required={true}
-          />
-          <Label htmlFor="year">Year</Label>
-          <Input
-            type="text"
-            ref={yearRef}
-            id="year"
-            // value={year}
-            inputMode="numeric" // for phones
-            // onChange={(e) => {
-            //   const number = Number(e.target.value);
-            //   if (isNaN(number)) return;
-            //   setYear(number);
-            // }}
-            placeholder="Year"
-            required={true}
-            />
-            </div>
-          */}
         <DatePicker dayRef={dayRef} monthRef={monthRef} yearRef={yearRef} />
         <TypographyH4 title="Select the topic this relates to" />
         {allTopics.isSuccess &&
@@ -278,7 +225,7 @@ function ListAllLessons({
       ]);
   });
 
-  const exclude = ["id", "date", "attendance"];
+  const exclude = ["id", "date", "topicId", "attendance"];
   return <TypographyTable titles={titles} rows={rows} exclude={exclude} />;
 }
 
