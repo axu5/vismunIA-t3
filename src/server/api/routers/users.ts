@@ -55,16 +55,6 @@ export const usersRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findUnique({
-        where: {
-          id: input.userId,
-        },
-      });
-      if (user == undefined) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-        });
-      }
       const lesson = await ctx.prisma.lesson.findUnique({
         where: {
           id: input.lessonId,
@@ -76,30 +66,18 @@ export const usersRouter = createTRPCRouter({
         });
       }
 
-      if (!input.present) {
-        // update user to be absent
-        await ctx.prisma.lesson.update({
-          where: {
-            id: input.lessonId,
-          },
-          data: {
-            attendance: lesson.attendance.filter(
-              (studentId) => studentId !== input.userId
-            ),
-          },
-        });
-      } else {
-        await ctx.prisma.lesson.update({
-          where: {
-            id: input.lessonId,
-          },
-          data: {
-            attendance: lesson.attendance.concat(input.userId),
-          },
-        });
-      }
-
-      return true;
+      await ctx.prisma.lesson.update({
+        where: {
+          id: input.lessonId,
+        },
+        data: {
+          attendance: input.present
+            ? lesson.attendance.concat(input.userId)
+            : lesson.attendance.filter(
+                (studentId) => studentId !== input.userId
+              ),
+        },
+      });
     }),
   getUsersByRole: protectedProcedureTeacher
     .input(z.array(userRoleType))
