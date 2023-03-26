@@ -168,13 +168,11 @@ export default function Attendance() {
         startMonthNumber - 1,
         0
       );
-      console.log(new Date(startDate));
       const endDate = new Date().setFullYear(
         endYearNumber,
         endMonthNumber - 1,
         0
       );
-      console.log(startDate.toLocaleString(), endDate.toLocaleString());
 
       // make sure start is before end
       if (!isBefore(startDate, endDate)) {

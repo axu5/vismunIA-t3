@@ -6,8 +6,6 @@ import {
   protectedProcedureTeacher,
   publicProcedure,
 } from "../trpc";
-import isBefore from "date-fns/isBefore";
-import isAfter from "date-fns/isAfter";
 import { Lesson } from "@prisma/client";
 
 export const lessonsRouter = createTRPCRouter({
@@ -161,7 +159,7 @@ export const lessonsRouter = createTRPCRouter({
       const slicedLessons = await ctx.prisma.lesson.findMany({
         where: {
           timestamp: {
-            gte: startDate,
+            gt: startDate,
             lte: endDate,
           },
         },
