@@ -48,6 +48,7 @@ export default function Attendance({
     lessonId,
     {
       onSuccess(data) {
+        console.log(data);
         setLocalAttendance(data);
       },
       refetchOnWindowFocus: false,
