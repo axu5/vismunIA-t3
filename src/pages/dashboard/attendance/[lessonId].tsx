@@ -4,7 +4,7 @@ import TypographyH1 from "@/components/ui/TypographyH1";
 import TypographyTable from "@/components/ui/TypographyTable";
 import { Button } from "@/components/ui/button";
 import { api } from "@/utils/api";
-import type { User } from "@prisma/client";
+import { User, UserRole } from "@prisma/client";
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -118,10 +118,14 @@ export default function Attendance({
     lessons == undefined ||
     students == undefined
   ) {
-    return <Loading />;
+    return (
+      <UserAllowed allowed={[UserRole.TEACHER]}>
+        <Loading />
+      </UserAllowed>
+    );
   }
   return (
-    <UserAllowed allowed={["TEACHER"]}>
+    <UserAllowed allowed={[UserRole.TEACHER]}>
       <TypographyH1 title="Students" />
       <TypographyTable rows={rows} titles={titles} />
     </UserAllowed>
