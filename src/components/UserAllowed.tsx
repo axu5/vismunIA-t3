@@ -24,12 +24,13 @@ const UserAllowed: FC<UserAllowedComponent> = ({
     return <h1>Loading...</h1>;
   } else if (!checkRoles(data.user.role, allowed)) {
     if (redirect)
-      router.push("/").then(() => {
+      (async () => {
+        await router.push("/");
         toast({
           title: "You are not authorized to access that page",
           variant: "destructive",
         });
-      });
+      })();
     return <></>;
   } else {
     return <>{children}</>;

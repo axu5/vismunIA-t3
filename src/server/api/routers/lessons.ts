@@ -6,7 +6,7 @@ import {
   protectedProcedureTeacher,
   publicProcedure,
 } from "../trpc";
-import { Lesson } from "@prisma/client";
+import type { Lesson } from "@prisma/client";
 
 export const lessonsRouter = createTRPCRouter({
   getAll: publicProcedure
