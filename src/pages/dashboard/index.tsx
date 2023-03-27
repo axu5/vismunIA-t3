@@ -36,7 +36,7 @@ const Dashboard: NextPage = () => {
       <UserAllowed allowed={["SECRETARY_GENERAL", "TEACHER"]}>
         <TypographyH1 title="Secretary General options" />
         <ShowContent content={secretaryGeneralContent} />
-        <UserAllowed allowed={["TEACHER"]} redir={false}>
+        <UserAllowed allowed={["TEACHER"]} redirect={false}>
           <TypographyH1 title="Teacher options" />
           <ShowContent content={teacherContent} />
         </UserAllowed>

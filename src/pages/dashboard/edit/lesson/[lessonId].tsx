@@ -89,12 +89,26 @@ const TopicEditor: NextPage<
     async onSuccess() {
       await router.push("/dashboard/edit/lesson");
     },
+    onError(error) {
+      toast({
+        title: "Failed to delete the lesson",
+        variant: "destructive",
+        description: error.message,
+      });
+    },
   });
   const editor = api.lessons.edit.useMutation({
     onSuccess() {
       toast({
         title: `Successfully updated the lesson`,
         description: `Updated the lesson`,
+      });
+    },
+    onError(error) {
+      toast({
+        title: "Failed to update the lesson",
+        variant: "destructive",
+        description: error.message,
       });
     },
   });

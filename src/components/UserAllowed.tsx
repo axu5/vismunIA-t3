@@ -8,21 +8,28 @@ import { type FC, type ReactNode } from "react";
 interface UserAllowedComponent {
   allowed: UserRole[];
   children: ReactNode;
-  redir?: boolean;
+  redirect?: boolean;
 }
 
 const UserAllowed: FC<UserAllowedComponent> = ({
   allowed,
   children,
-  redir,
+  redirect,
 }) => {
-  if (redir == undefined) redir = true;
+  if (redirect == undefined) redirect = true;
   const { data, status } = useSession();
   const router = useRouter();
+  const { toast } = useToast();
   if (status !== "authenticated" || !router.isReady) {
     return <h1>Loading...</h1>;
   } else if (!checkRoles(data.user.role, allowed)) {
-    if (redir) router.push("/");
+    if (redirect)
+      router.push("/").then(() => {
+        toast({
+          title: "You are not authorized to access that page",
+          variant: "destructive",
+        });
+      });
     return <></>;
   } else {
     return <>{children}</>;
