@@ -34,15 +34,16 @@ export const usersRouter = createTRPCRouter({
       });
 
       // return a map of (userId => boolean)
-      const attendance = new Map<string, boolean>();
+      const attendance = new Set<string>();
       for (let i = 0; i < users.length; ++i) {
         const user = users[i];
-        if (user == undefined) break;
+        if (user == undefined) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        }
         const id = user.id;
-        attendance.set(
-          id,
-          lesson?.attendance.some((u) => u == id)
-        );
+        if (lesson?.attendance.some((u) => u == id)) attendance.add(id);
       }
 
       return attendance;
@@ -67,18 +68,28 @@ export const usersRouter = createTRPCRouter({
         });
       }
 
+      const attendance = new Set<string>(lesson.attendance);
+
+      if (input.present) {
+        attendance.add(input.userId);
+      } else {
+        attendance.delete(input.userId);
+      }
+
+      //   const attendance = input.present
+      //     ? lesson.attendance.concat(input.userId)
+      //     : lesson.attendance.filter((studentId) => studentId !== input.userId);
+
       await ctx.prisma.lesson.update({
         where: {
           id: input.lessonId,
         },
         data: {
-          attendance: input.present
-            ? lesson.attendance.concat(input.userId)
-            : lesson.attendance.filter(
-                (studentId) => studentId !== input.userId
-              ),
+          attendance: Array.from(attendance),
         },
       });
+
+      return attendance;
     }),
   getUsersByRole: protectedProcedureTeacher
     .input(z.array(userRoleType))

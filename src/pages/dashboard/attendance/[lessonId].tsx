@@ -37,8 +37,8 @@ export default function Attendance({
     api.lessons.getById.useQuery(lessonId, {
       refetchOnWindowFocus: false,
     });
-  const [localAttendance, setLocalAttendance] = useState<Map<string, boolean>>(
-    new Map()
+  const [localAttendance, setLocalAttendance] = useState<Set<string>>(
+    new Set()
   );
   const { data: students, isLoading: isLoadingStudents } =
     api.users.getUsersByRole.useQuery(["STUDENT", "SECRETARY_GENERAL"], {
@@ -56,7 +56,11 @@ export default function Attendance({
       refetchOnWindowFocus: false,
     }
   );
-  const attendanceMutator = api.users.setAttendance.useMutation({});
+  const attendanceMutator = api.users.setAttendance.useMutation({
+    onSuccess(data) {
+      setLocalAttendance(data);
+    },
+  });
 
   const titles = [<>Name</>, <>Present</>, <>Absent</>];
   const rows = useMemo(() => {
@@ -66,13 +70,12 @@ export default function Attendance({
 
     const toggleAttendance = (student: User) => {
       return () => {
-        const present = !localAttendance.get(student.id);
+        const present = !localAttendance.has(student.id);
         attendanceMutator.mutate({
           userId: student.id,
           lessonId,
           present,
         });
-        localAttendance.set(student.id, present);
       };
     };
 
@@ -83,7 +86,7 @@ export default function Attendance({
         return aLastName < bLastName ? -1 : 1;
       })
       .map((student) => {
-        const attended = localAttendance.get(student.id);
+        const attended = localAttendance.has(student.id);
         return [
           <div key={0}>{student.name}</div>,
           <Button
