@@ -145,6 +145,25 @@ export const lessonsRouter = createTRPCRouter({
         data: input.data,
       });
     }),
+  setAttendanceData: protectedProcedureTeacher
+    .input(
+      z.object({
+        lessonId: z.string().cuid(),
+        users: z.array(z.string().cuid()),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const attendanceSet = new Set<string>(input.users);
+
+      const _lesson = await ctx.prisma.lesson.update({
+        where: {
+          id: input.lessonId,
+        },
+        data: {
+          attendance: Array.from(attendanceSet),
+        },
+      });
+    }),
   getAttendanceData: protectedProcedureTeacher
     .input(
       z.object({

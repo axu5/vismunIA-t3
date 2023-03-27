@@ -48,49 +48,7 @@ export const usersRouter = createTRPCRouter({
 
       return attendance;
     }),
-  setAttendance: protectedProcedureTeacher
-    .input(
-      z.object({
-        lessonId: z.string().cuid(),
-        userId: z.string().cuid(),
-        present: z.boolean(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const lesson = await ctx.prisma.lesson.findUnique({
-        where: {
-          id: input.lessonId,
-        },
-      });
-      if (lesson == undefined) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-        });
-      }
 
-      const attendance = new Set<string>(lesson.attendance);
-
-      if (input.present) {
-        attendance.add(input.userId);
-      } else {
-        attendance.delete(input.userId);
-      }
-
-      //   const attendance = input.present
-      //     ? lesson.attendance.concat(input.userId)
-      //     : lesson.attendance.filter((studentId) => studentId !== input.userId);
-
-      await ctx.prisma.lesson.update({
-        where: {
-          id: input.lessonId,
-        },
-        data: {
-          attendance: Array.from(attendance),
-        },
-      });
-
-      return attendance;
-    }),
   getUsersByRole: protectedProcedureTeacher
     .input(z.array(userRoleType))
     .query(async ({ ctx, input }) => {
