@@ -8,6 +8,7 @@ import "../styles/globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/Toaster";
 import Head from "next/head";
+import { Analytics } from "@vercel/analytics/react";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -35,6 +36,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <Navbar />
     <main className="mx-auto w-4/5">
       <Component {...pageProps} />
+      <Analytics />
     </main>
     <Toaster />
   </SessionProvider>
