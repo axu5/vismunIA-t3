@@ -25,6 +25,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
             Match search intent;
             Include your target keyword where it makes sense;
             Keep it under 60 characters. */}
+      <meta
+        name="google-site-verification"
+        content="X9LGH52btFxhOm64YQUNVdXVxJmmRj1h6KPftxq8e0o"
+      />
       <meta title="Verdala International School - Model United Nations" />
       <meta
         name="description"

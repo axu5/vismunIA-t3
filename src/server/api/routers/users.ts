@@ -65,6 +65,36 @@ export const usersRouter = createTRPCRouter({
 
       return users;
     }),
+  //   searchRelevantInformation: protectedProcedureTeacher
+  //     .input(
+  //       z.object({
+  //         userId: z.string().cuid(),
+  //       })
+  //     )
+  //     .query(async ({ ctx, input }) => {
+  //       // get lessons
+  //       const lessons = await ctx.prisma.lesson.findMany({
+  //         where: {
+  //           attendance: {
+  //             has: input.userId,
+  //           },
+  //         },
+  //       });
+  //       if (lessons == undefined) {
+  //         throw new TRPCError({
+  //           code: "BAD_REQUEST",
+  //         });
+  //       }
+  //       // get topics
+  //       const topics = await ctx.prisma.topic.findMany({
+  //         where: {
+  //           sessions: {
+  //             some: lessons,
+  //           },
+  //         },
+  //       });
+  //       // get attendance
+  //     }),
 
   // protect user data to only teachers
   getAll: protectedProcedureTeacher.query(async ({ ctx }) => {
